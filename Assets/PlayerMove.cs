@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,6 +9,7 @@ public class PlayerMove : MonoBehaviour
 
     public float speed = 5f;
     public float JumpForce = 5f;
+    public float bounceForce = 8f;
 
     private bool isGrounded = true;
     private Rigidbody rb;
@@ -48,8 +50,25 @@ public class PlayerMove : MonoBehaviour
         {
             isGrounded = true;
         }
+        if (collision.gameObject.CompareTag("Enemy")) 
+        {
+            foreach(ContactPoint contact in collision.contacts) 
+            {
+                if (contact.normal.y > 0.5f) 
+                {
+                    Bounce();
+                    break;
+                }
+            }
+            
+        }
     }
+     private void Bounce() 
+    {
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0f);
 
+        rb.AddForce(Vector2.up * bounceForce, ForceMode.Impulse);
+    }
     private void Jump()
     {
         if (!isGrounded) return;
