@@ -7,7 +7,7 @@ using Unity.Behavior;
 namespace Kounosuke {
     public class SendTrueEventGettor : AnimationEventGettorBase
     {
-        [SerializeField] private BlackboardVariable<bool> IsSuccess;
+        [SerializeField] private BehaviorGraphAgent Agent;
 
         void Start()
         {
@@ -19,11 +19,19 @@ namespace Kounosuke {
 
         }
 
-        public override void GetEvent()
+        public void Send(string eventName, bool value)
         {
-            if (IsSuccess != null) {
-                IsSuccess.Value = true;
+            if (Agent != null)
+            {
+                var blackboard = Agent.BlackboardReference;
+                blackboard.SetVariableValue<bool>(eventName, value);
+                Debug.Log(blackboard.GetVariableValue<bool>(eventName, out bool After));
+                Debug.Log("GetEvent called");
             }
+        }
+        public override void GetEvent( )
+        {
+           
         }
     }
 

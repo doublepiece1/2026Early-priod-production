@@ -5,13 +5,13 @@ using UnityEngine;
 namespace Kounosuke {
     public class ShareBrackBoardBase : MonoBehaviour
     {
-        [SerializeField] private Blackboard Blackboard;
+        [SerializeField] private BehaviorGraphAgent Agent;
 
-        public Blackboard GetGraph()
+        public BehaviorGraphAgent GetGraph()
         {
-            if(Blackboard != null)
+            if(Agent != null)
             {
-                return Blackboard;
+                return Agent;
             }
             return null;
         }

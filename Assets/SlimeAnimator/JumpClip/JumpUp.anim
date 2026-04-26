@@ -167,8 +167,8 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0.083333336
-    functionName: GetEvent
-    data: 
+    functionName: TriggerAnimationEvent
+    data: Jump
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
