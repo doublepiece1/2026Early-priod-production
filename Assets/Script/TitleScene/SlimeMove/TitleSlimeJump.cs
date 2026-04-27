@@ -1,18 +1,29 @@
 using DG.Tweening;
-using Kounosuke;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-public class TitleSlimeJump : TitleMoveSlime
+namespace Kounosuke
 {
-    [SerializeField, Header("ジャンプするベクター")] private Vector3 vec_;
-    private void Start()
+    public class TitleSlimeJump : MonoBehaviour
     {
-        if (!HasCheck(Object_)) Debug.LogError("Not Found GameObject");
-        Push_Sequence();
+        [SerializeField, Header("ジャンプするベクター")] private Vector3 vec_;
+        private Animator animator_;
+        private Rigidbody rb_;
+        private void Start()
+        {
+            animator_ = GetComponent<Animator>();
+            rb_ = GetComponent<Rigidbody>();
+            vec_ += transform.position;
+            animator_.SetTrigger("IsJump");
+            
+        }
+
+        public void OnMessage(int value)
+        {
+            Debug.Log("Jump");
+            animator_.SetBool("IsGround", false);
+            transform.DOMove(vec_, 1f).SetLoops(2, LoopType.Yoyo).OnComplete(() => { animator_.SetBool("IsGround", true); });
+        }
     }
-    public override void Push_Sequence()
-    {
-        Object_.transform.DOJump(vec_, jumpPower: 3f, numJumps: 2, duration: 3f).SetLoops(-1, LoopType.Yoyo);
-    }
+
 }
