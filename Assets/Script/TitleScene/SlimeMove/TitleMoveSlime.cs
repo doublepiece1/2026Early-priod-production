@@ -10,7 +10,10 @@ namespace Kounosuke {
         [SerializeField, Header("ジャンプする時間")] private float time_;
         [SerializeField, Header("ジャンプする種類")] private Ease ease_;
         void Start() {
-            transform.DOJump(pos_, speed_, count_, time_).SetEase(ease_);
+            transform.DOJump(pos_, speed_, count_, time_).SetEase(ease_).OnComplete(() =>
+            {
+               GameObject.Find("EventSystem").GetComponent<TitleEventManager>().ActiveMainCanvas();
+            });
         }
     }
 }
