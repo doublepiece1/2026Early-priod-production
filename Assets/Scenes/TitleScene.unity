@@ -834,7 +834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d97efffcde6901b49ac6c91276ffcb0d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Kounosuke.TitleSettingButton
-  IsUsed_: 1
+  IsUsed_: 0
   HighlightedColor_: {r: 0, g: 0.8927181, b: 1, a: 1}
   SelectedColor_: {r: 0, g: 0.8941177, b: 1, a: 1}
   eventManager_: {fileID: 1266429912}

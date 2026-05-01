@@ -77,7 +77,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8451294877404960768}
-  - component: {fileID: 4754144334593355882}
   - component: {fileID: 5734313351936365430}
   - component: {fileID: 3887134554257099452}
   - component: {fileID: 5882222330846796458}
@@ -107,28 +106,6 @@ Transform:
   - {fileID: 5669004582605254951}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!95 &4754144334593355882
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5364086896744954659}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 618e9f74a441e3440b33ebb52df81343, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!50 &5734313351936365430
 Rigidbody2D:
   serializedVersion: 5
@@ -174,7 +151,7 @@ MonoBehaviour:
       UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"},{"name":"MySprite","value":{"$content":1,"$type":"UnityEngine.Object"},"typeHandle":{"Identification":"UnityEngine.SpriteRenderer,
       UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null","$version":"A"},"$version":"A"}],"$version":"A"},"$version":"A"}}'
     _objectReferences:
-    - {fileID: 4754144334593355882}
+    - {fileID: 1686888714901135811}
     - {fileID: 6681754100736101607}
 --- !u!114 &5882222330846796458
 MonoBehaviour:
@@ -209,6 +186,7 @@ MonoBehaviour:
   - rid: 7733277085995892770
   - rid: 7733277088632013325
   - rid: 7733277088632013326
+  - rid: 7733277197610254517
   m_OriginalGraph: {fileID: 7563391397794644384, guid: 21eedcaa3ae0621438eee22566114690, type: 2}
   m_IsInitialised: 0
   m_IsStarted: 0
@@ -239,6 +217,14 @@ MonoBehaviour:
           m_Value1: 15903419424560863275
         Name: Target2
         m_Value: {fileID: 0}
+    - rid: 7733277197610254517
+      type: {class: 'BlackboardVariable`1[[System.Single, mscorlib]]', ns: Unity.Behavior, asm: Unity.Behavior}
+      data:
+        GUID:
+          m_Value0: 6704848002247293709
+          m_Value1: 3616425360364471314
+        Name: turnlength
+        m_Value: 1
 --- !u!114 &2230670496776244353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,6 +248,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5075170153996305109}
   - component: {fileID: 6681754100736101607}
+  - component: {fileID: 1686888714901135811}
+  - component: {fileID: 7106536853936434921}
   m_Layer: 0
   m_Name: Splite
   m_TagString: Untagged
@@ -343,3 +331,38 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
+--- !u!95 &1686888714901135811
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7977329289002756702}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 618e9f74a441e3440b33ebb52df81343, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7106536853936434921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7977329289002756702}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 317d3d58e287cce4eb00dd514b53b35d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimatorSendEvent
+  stateMachine_: {fileID: 5882222330846796458}
