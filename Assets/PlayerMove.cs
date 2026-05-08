@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 public class PlayerMove : MonoBehaviour
 {
     private PlayerInputActions inputActions;
+    [SerializeField, Header("スプライトレンダラー")] private SpriteRenderer renderer;
     private Vector2 moveInput;
     public float speed = 5f;
     public float JumpForce = 5f;
@@ -32,6 +33,29 @@ public class PlayerMove : MonoBehaviour
     {
         // 左右移動（X方向のみ）
         transform.Translate(new Vector3(moveInput.x, 0, 0) * speed * Time.deltaTime);
+        var vec_x = rb.linearVelocityX;
+        if (moveInput.x == 0)
+        {
+            if (vec_x > 0)
+            {
+                renderer.flipX = false;
+            }
+            else if (vec_x < 0)
+            {
+                renderer.flipX = true;
+            }
+        }
+        else
+        {
+            if (moveInput.x > 0)
+            {
+                renderer.flipX = false;
+            }
+            else if (moveInput.x < 0)
+            {
+                renderer.flipX = true;
+            }
+        }
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {

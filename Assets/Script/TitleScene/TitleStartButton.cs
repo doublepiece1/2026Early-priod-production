@@ -1,13 +1,18 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Kounosuke
 {
     public class TitleStartButton : TitleButtonBase
     {
+        public string Title;
         protected override void OnClickSettingButton()
         {
             base.OnClickSettingButton();
-            Debug.Log("スタートボタンが押されました");
+            if (Title != null)
+            {
+                SceneManager.LoadScene(Title);
+            }
         }
     }
 }

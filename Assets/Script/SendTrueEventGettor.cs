@@ -25,8 +25,7 @@ namespace Kounosuke {
             {
                 var blackboard = Agent.BlackboardReference;
                 blackboard.SetVariableValue<bool>(eventName, value);
-                Debug.Log(blackboard.GetVariableValue<bool>(eventName, out bool After));
-                Debug.Log("GetEvent called");
+                
             }
         }
         public override void GetEvent( )

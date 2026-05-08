@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -36,6 +38,8 @@ public class Grapplesystem : MonoBehaviour
     private InputAction upAction, downAction, rightAction, leftAction;
     private bool upHeld, downHeld, rightHeld, leftHeld;
 
+    private bool Is_cooldown = false;
+    [SerializeField, Header("クールタイム")] private int cool_time = 0;
     // ─────────────────────────────────────────────────────────
     private void Awake()
     {
@@ -80,9 +84,12 @@ public class Grapplesystem : MonoBehaviour
             return;
         }
 
-        Vector2 dir = CalcDirection();
-        if (dir != Vector2.zero)
-            TryShoot(dir);
+        if (!Is_cooldown)
+        {
+            Vector2 dir = CalcDirection();
+            if (dir != Vector2.zero)
+                TryShoot(dir);
+        }
     }
 
     private Vector2 CalcDirection()
@@ -203,8 +210,22 @@ public class Grapplesystem : MonoBehaviour
     // ── 解除 ─────────────────────────────────────────────────
     private void Release()
     {
+        
         isGrappling = false;
         rope.StopRope();
+        StartCoroutine(Is_coolDown(cool_time));
+    }
+
+    IEnumerator Is_coolDown(int time_)
+    {
+        Is_cooldown = true;
+        for (int i=0; i<time_; i++)
+        {
+            yield return new WaitForSeconds(1);
+        }
+        Debug.Log("Release");
+        Is_cooldown = false;
+        yield break;
     }
 
     // ── Gizmos ───────────────────────────────────────────────

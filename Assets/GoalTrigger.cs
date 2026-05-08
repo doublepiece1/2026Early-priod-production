@@ -1,4 +1,6 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GoalTrigger : MonoBehaviour
 {
@@ -20,6 +22,18 @@ public class GoalTrigger : MonoBehaviour
                 clearImage.SetActive(true);
 
             }
+            StartCoroutine(gool());
         }
+    }
+
+    IEnumerator gool()
+    {
+        for(int i = 0; i < 5; i++)
+        {
+            yield return new WaitForSeconds(1);
+        }
+        SceneManager.LoadScene("TitleScene");
+        yield break;
+        
     }
 }
