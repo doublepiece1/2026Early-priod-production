@@ -7,6 +7,7 @@ namespace Kounosuke
     public class TitleSlimeJump : MonoBehaviour
     {
         [SerializeField, Header("ジャンプするベクター")] private Vector3 vec_;
+        [SerializeField, Header("ジャンプする時間")] private float time_ = 1;
         [SerializeField, Header("アニメーター")] private Animator animator_;
         private Rigidbody rb_;
         private void Start()
@@ -23,7 +24,7 @@ namespace Kounosuke
             if (animator_ != null) {
                 animator_.SetBool("IsGround", false);
             }
-            transform.DOMove(vec_, 1f).SetLoops(2, LoopType.Yoyo).OnComplete(() =>
+            transform.DOMove(vec_, 1).SetLoops(2, LoopType.Yoyo).OnComplete(() =>
             {
                 if (animator_ != null)
                 {
