@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Grapplerope))]
 
 public class Grapplesystem : MonoBehaviour
@@ -13,38 +13,33 @@ public class Grapplesystem : MonoBehaviour
     [SerializeField] private float releaseDistance = 1.2f;
 
     [Header("発射元")]
-    [SerializeField] private Transform shootPoint;  // 未設定なら自動で中心を使用
+    [SerializeField] private Transform shootPoint;
 
     [Header("当たり判定")]
-    [Tooltip("糸を引っかけたいレイヤーを設定（デフォルト: Everything）")]
+    [Tooltip("糸を引っかけたいレイヤー（TilemapのLayerを含めること）")]
     [SerializeField] private LayerMask grappleLayer = ~0;
 
-    [Tooltip("扇形サブRayの広がり角度（度）。大きいほど広い範囲を検出")]
+    [Tooltip("扇形サブRayの広がり角度（度）")]
     [SerializeField] private float spreadAngle = 8f;
 
-    [Tooltip("デバッグ用Rayをゲーム実行中も表示する")]
+    [Tooltip("デバッグRayをSceneビューに表示する")]
     [SerializeField] private bool showDebugRay = true;
 
     // ─────────────────────────────────────────────────────────
-    private Rigidbody rb;
+    private Rigidbody2D rb;
     private Grapplerope rope;
 
     private bool isGrappling;
-    private Vector3 anchorPoint;
+    private Vector2 anchorPoint;
 
     // キー状態
     private InputAction upAction, downAction, rightAction, leftAction;
     private bool upHeld, downHeld, rightHeld, leftHeld;
 
-    // デバッグ表示用（最後に発射したRay情報）
-    private Vector3 lastRayOrigin;
-    private Vector3 lastRayDirection;
-    private bool lastRayHit;
-
     // ─────────────────────────────────────────────────────────
     private void Awake()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
         rope = GetComponent<Grapplerope>();
         if (shootPoint == null) shootPoint = transform;
 
@@ -85,40 +80,32 @@ public class Grapplesystem : MonoBehaviour
             return;
         }
 
-        Vector3 dir = CalcDirection();
-        if (dir != Vector3.zero)
+        Vector2 dir = CalcDirection();
+        if (dir != Vector2.zero)
             TryShoot(dir);
     }
 
-    private Vector3 CalcDirection()
+    private Vector2 CalcDirection()
     {
         float v = (upHeld ? 1f : 0f) + (downHeld ? -1f : 0f);
         float h = (rightHeld ? 1f : 0f) + (leftHeld ? -1f : 0f);
-        return new Vector3(h, v, 0f).normalized;
+        return new Vector2(h, v).normalized;
     }
 
-    // ── 発射（当たり判定改善版） ──────────────────────────────
-    private void TryShoot(Vector3 direction)
+    // ── 発射（Physics2D.Raycast でタイルマップに当たる） ─────
+    private void TryShoot(Vector2 direction)
     {
         if (isGrappling) Release();
 
-        // 発射元：プレイヤーの Collider を確実に抜けた位置から撃つ
-        // 自分自身を無視するために IgnoreRaycastLayer や QueryTriggerInteraction を活用
-        Vector3 origin = shootPoint.position;
+        Vector2 origin = shootPoint.position;
 
-        // プレイヤー自身を除外するため、自分の全Colliderを一時的に無効化してRaycast
-        Collider[] myColliders = GetComponentsInChildren<Collider>();
+        // プレイヤー自身を一時的に無効化して誤検知を防ぐ
+        Collider2D[] myColliders = GetComponentsInChildren<Collider2D>();
         foreach (var col in myColliders) col.enabled = false;
 
-        bool hit = ShootRays(origin, direction, out Vector3 hitPoint);
+        bool hit = ShootRays(origin, direction, out Vector2 hitPoint);
 
-        // Colliderを元に戻す
         foreach (var col in myColliders) col.enabled = true;
-
-        // デバッグ用に保存
-        lastRayOrigin = origin;
-        lastRayDirection = direction;
-        lastRayHit = hit;
 
         if (hit)
         {
@@ -133,35 +120,34 @@ public class Grapplesystem : MonoBehaviour
     }
 
     /// <summary>
-    /// 中央1本 + 左右に広げた2本の合計3本のRayを飛ばし、
-    /// 最も近いヒット点を返す。いずれかがヒットすればtrue。
+    /// 中央1本 + 左右に spreadAngle 度ずらした2本の計3本の
+    /// Physics2D.Raycast を飛ばし、最も近いヒット点を返す。
     /// </summary>
-    private bool ShootRays(Vector3 origin, Vector3 dir, out Vector3 hitPoint)
+    private bool ShootRays(Vector2 origin, Vector2 dir, out Vector2 hitPoint)
     {
-        hitPoint = Vector3.zero;
+        hitPoint = Vector2.zero;
 
-        // 扇形に広げる軸（Z軸固定、XY平面で回転）
-        Vector3 axis = Vector3.forward;
-
-        // 3方向のRay（中央・+spreadAngle・-spreadAngle）
-        Vector3[] directions = new Vector3[]
+        // 3方向（中央・右寄り・左寄り）
+        Vector2[] directions = new Vector2[]
         {
             dir,
-            Quaternion.AngleAxis( spreadAngle, axis) * dir,
-            Quaternion.AngleAxis(-spreadAngle, axis) * dir,
+            Rotate(dir,  spreadAngle),
+            Rotate(dir, -spreadAngle),
         };
 
         float closestDist = float.MaxValue;
         bool anyHit = false;
 
-        foreach (Vector3 rayDir in directions)
+        foreach (Vector2 rayDir in directions)
         {
             if (showDebugRay)
                 Debug.DrawRay(origin, rayDir * maxDistance, Color.yellow, 0.5f);
 
-            if (Physics.Raycast(origin, rayDir, out RaycastHit info,
-                                maxDistance, grappleLayer,
-                                QueryTriggerInteraction.Ignore)) // Triggerは無視
+            // ★ Physics2D.Raycast でタイルマップの2Dコライダーに当たる
+            RaycastHit2D info = Physics2D.Raycast(
+                origin, rayDir, maxDistance, grappleLayer);
+
+            if (info.collider != null)
             {
                 if (showDebugRay)
                     Debug.DrawRay(origin, rayDir * info.distance, Color.cyan, 0.5f);
@@ -178,7 +164,18 @@ public class Grapplesystem : MonoBehaviour
         return anyHit;
     }
 
-    // ── 引き寄せ ─────────────────────────────────────────────
+    // ── ベクトルを角度で回転（2D用） ─────────────────────────
+    private Vector2 Rotate(Vector2 v, float degrees)
+    {
+        float rad = degrees * Mathf.Deg2Rad;
+        float cos = Mathf.Cos(rad);
+        float sin = Mathf.Sin(rad);
+        return new Vector2(
+            v.x * cos - v.y * sin,
+            v.x * sin + v.y * cos);
+    }
+
+    // ── 引き寄せ（毎フレーム） ────────────────────────────────
     private void Update()
     {
         if (isGrappling) ApplyPull();
@@ -186,7 +183,7 @@ public class Grapplesystem : MonoBehaviour
 
     private void ApplyPull()
     {
-        Vector3 toAnchor = anchorPoint - transform.position;
+        Vector2 toAnchor = anchorPoint - (Vector2)transform.position;
         float dist = toAnchor.magnitude;
 
         if (dist < releaseDistance)
@@ -195,10 +192,10 @@ public class Grapplesystem : MonoBehaviour
             return;
         }
 
-        Vector3 pullDir = toAnchor.normalized;
-        float currentSpeed = Vector3.Dot(rb.linearVelocity, pullDir);
+        Vector2 pullDir = toAnchor.normalized;
+        float currentSpeed = Vector2.Dot(rb.linearVelocity, pullDir);
         if (currentSpeed < maxSpeed)
-            rb.AddForce(pullDir * pullForce, ForceMode.Force);
+            rb.AddForce(pullDir * pullForce, ForceMode2D.Force);
 
         rope.UpdateRope(shootPoint, anchorPoint);
     }
@@ -214,22 +211,20 @@ public class Grapplesystem : MonoBehaviour
     private void OnDrawGizmosSelected()
     {
         Vector3 origin = shootPoint ? shootPoint.position : transform.position;
-
-        // 8方向の発射ラインをプレビュー
         Gizmos.color = new Color(1f, 1f, 0f, 0.4f);
         float len = 3f;
-        Vector3[] previewDirs = {
-            Vector3.up, Vector3.down, Vector3.right, Vector3.left,
-            new Vector3( 1, 1,0).normalized, new Vector3(-1, 1,0).normalized,
-            new Vector3( 1,-1,0).normalized, new Vector3(-1,-1,0).normalized
+        Vector2[] dirs = {
+            Vector2.up, Vector2.down, Vector2.right, Vector2.left,
+            new Vector2( 1, 1).normalized, new Vector2(-1, 1).normalized,
+            new Vector2( 1,-1).normalized, new Vector2(-1,-1).normalized
         };
-        foreach (var d in previewDirs)
-            Gizmos.DrawRay(origin, d * len);
+        foreach (var d in dirs)
+            Gizmos.DrawRay(origin, (Vector3)d * len);
 
-        // グラップル中のアンカー
         if (!isGrappling) return;
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(origin, anchorPoint);
-        Gizmos.DrawWireSphere(anchorPoint, 0.3f);
+        Gizmos.DrawLine(origin, (Vector3)anchorPoint);
+        Gizmos.DrawWireSphere((Vector3)anchorPoint, 0.3f);
     }
+
 }
