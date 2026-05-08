@@ -9,10 +9,14 @@ namespace Kounosuke {
         [SerializeField, Header("ジャンプする回数")] private int count_;
         [SerializeField, Header("ジャンプする時間")] private float time_;
         [SerializeField, Header("ジャンプする種類")] private Ease ease_;
+        public float yyy = 0;
         void Start() {
             transform.DOJump(pos_, speed_, count_, time_).SetEase(ease_).OnComplete(() =>
             {
-               GameObject.Find("EventSystem").GetComponent<TitleEventManager>().ActiveMainCanvas();
+                pos_.y += yyy;
+                this.transform.DOMove(pos_, 1f).OnComplete(() => { 
+                    GameObject.Find("EventSystem").GetComponent<TitleEventManager>().ActiveMainCanvas(); 
+                });
             });
         }
     }
