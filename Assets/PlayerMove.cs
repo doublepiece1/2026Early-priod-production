@@ -59,21 +59,22 @@ public class PlayerMove : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+
+        foreach (ContactPoint2D contact in collision.contacts)
         {
-            isGrounded = true;
-        }
-        if (collision.gameObject.CompareTag("Enemy"))
-        {
-            foreach(ContactPoint2D contact in collision.contacts)
+            // 法線が上向きなら地面判定
+            if (contact.normal.y > 0.5f)
             {
-                if (contact.normal.y > 0.5f)
+                isGrounded = true;
+
+                // Enemyなら踏みつけバウンド
+                if (collision.gameObject.CompareTag("Enemy"))
                 {
                     Bounce();
-                    break;
                 }
+                
+                break;
             }
-
         }
     }
 
