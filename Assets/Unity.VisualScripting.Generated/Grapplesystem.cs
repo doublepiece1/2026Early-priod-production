@@ -265,6 +265,8 @@ public class Grapplesystem : MonoBehaviour
         {
             rb.gravityScale = defaultGravityScale;
             rb.linearDamping = defaultDrag;
+
+            rb.linearVelocity = Vector2.zero;
         }
     }
 
