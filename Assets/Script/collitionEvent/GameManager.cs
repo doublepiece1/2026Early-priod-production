@@ -18,6 +18,11 @@ namespace Kounosuke
         }
 
 
+        public void PlayerDeath()
+        {
+
+        }
+
         public void GoalEvent()
         {
             Wait(2000);
