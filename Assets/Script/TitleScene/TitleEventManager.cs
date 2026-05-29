@@ -1,12 +1,12 @@
-using System.ComponentModel.Design;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DG.Tweening;
 using UnityEngine.InputSystem.LowLevel;
+using Cysharp.Threading.Tasks;
 
 public class TitleEventManager : MonoBehaviour
 {
@@ -16,6 +16,7 @@ public class TitleEventManager : MonoBehaviour
     [SerializeField,Header("設定ボタン")] private GameObject SettingButton_;
     [SerializeField,Header("キャンセルアクション")] private InputSystemUIInputModule inputModule_;
     [SerializeField,Header("サブキャンバス切り替えボタン")] private GameObject targetButton_;
+    [SerializeField, Header("フェード")] private Fade fade_;
 
     private PlayerInputActions InputActions_;
     private bool isActiveSubCanvas_ = false;
@@ -90,5 +91,17 @@ public class TitleEventManager : MonoBehaviour
                 EventSystem.current.SetSelectedGameObject(StartButton_);
             }
         }
+    }
+
+    public void OnStartButton(string str)
+    {
+        Load(str);
+    }
+
+    public async UniTask Load(string str)
+    {
+        fade_.FadeImage(true);
+        await UniTask.Delay(1000);
+        SceneManager.LoadScene(str);
     }
 }

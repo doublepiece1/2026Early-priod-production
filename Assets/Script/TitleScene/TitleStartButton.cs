@@ -1,18 +1,15 @@
-using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 namespace Kounosuke
 {
     public class TitleStartButton : TitleButtonBase
     {
-        public string Title;
+        public UnityEvent event_;
         protected override void OnClickSettingButton()
         {
             base.OnClickSettingButton();
-            if (Title != null)
-            {
-                SceneManager.LoadScene(Title);
-            }
+            event_?.Invoke();
+            gameObject.SetActive(false);
         }
     }
 }
