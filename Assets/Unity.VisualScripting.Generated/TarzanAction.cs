@@ -1,0 +1,75 @@
+using UnityEngine;
+
+public class TarzanAction : MonoBehaviour
+{
+    [Header("設定")]
+    public LayerMask grappleLayer; 
+    public float maxDistance = 10f; // 糸が届く最大距離
+
+    private Rigidbody2D rb;
+    private DistanceJoint2D joint;
+    private LineRenderer lineRenderer;
+    private Vector2 grapplePoint;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        lineRenderer = GetComponent<LineRenderer>();
+        lineRenderer.positionCount = 0;
+    }
+
+    void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            StartGrapple();
+        }
+        if (Input.GetMouseButtonUp(0))
+        {
+            StopGrapple();
+        }
+
+        // 糸を引いている間、見た目の線を更新
+        if (joint != null)
+        {
+            lineRenderer.SetPosition(0, transform.position); // 始点：プレイヤー
+            lineRenderer.SetPosition(1, grapplePoint);       // 終点：引っかかった場所
+        }
+    }
+
+    void StartGrapple()
+    {
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 direction = (mousePos - transform.position).normalized;
+
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, maxDistance, grappleLayer);
+
+        if (hit.collider != null)
+        {
+            grapplePoint = hit.point;
+
+            joint = gameObject.AddComponent<DistanceJoint2D>();
+            joint.autoConfigureDistance = false;
+            joint.connectedAnchor = grapplePoint;
+            joint.distance = Vector2.Distance(transform.position, grapplePoint);
+
+            joint.maxDistanceOnly = true;
+
+            lineRenderer.positionCount = 2;
+            rb.AddForce(direction * 30f, ForceMode2D.Impulse);
+
+            lineRenderer.positionCount = 2;
+            rb.AddForce(direction * 8f, ForceMode2D.Impulse);
+        }
+    }
+
+    void StopGrapple()
+    {
+        // ジョイントを削除して解放
+        if (joint != null)
+        {
+            Destroy(joint);
+            lineRenderer.positionCount = 0;
+        }
+    }
+}
