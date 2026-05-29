@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class TarzanAction : MonoBehaviour
 {
-    [Header("�ݒ�")]
+    [Header("設定")]
     public LayerMask grappleLayer; 
     public float maxDistance = 10f; 
     public float swingImpulse = 30f; 
@@ -85,7 +85,7 @@ public class TarzanAction : MonoBehaviour
         rb.AddForce(Vector2.up * 5f, ForceMode2D.Impulse); 
         
 
-        Debug.Log("�v���C���[�����S���܂����B������~���܂��B");
+        Debug.Log("プレイヤーが死亡したので操作を停止します");
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
