@@ -1062,8 +1062,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Grapplerope
   grappleLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
-  maxDistance: 500
+    m_Bits: 256
+  maxDistance: 30
 --- !u!1001 &1202607392
 PrefabInstance:
   m_ObjectHideFlags: 0

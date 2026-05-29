@@ -2,14 +2,17 @@ using UnityEngine;
 
 public class TarzanAction : MonoBehaviour
 {
-    [Header("İ’è")]
+    [Header("ï¿½İ’ï¿½")]
     public LayerMask grappleLayer; 
-    public float maxDistance = 10f; // …‚ª“Í‚­Å‘å‹——£
+    public float maxDistance = 10f; 
+    public float swingImpulse = 30f; 
 
     private Rigidbody2D rb;
     private DistanceJoint2D joint;
     private LineRenderer lineRenderer;
     private Vector2 grapplePoint;
+
+    private bool isAlive = true;
 
     void Start()
     {
@@ -20,20 +23,23 @@ public class TarzanAction : MonoBehaviour
 
     void Update()
     {
+       
+        if (!isAlive) return;
+
         if (Input.GetMouseButtonDown(0))
         {
             StartGrapple();
         }
+
         if (Input.GetMouseButtonUp(0))
         {
             StopGrapple();
         }
 
-        // …‚ğˆø‚¢‚Ä‚¢‚éŠÔAŒ©‚½–Ú‚Ìü‚ğXV
         if (joint != null)
         {
-            lineRenderer.SetPosition(0, transform.position); // n“_FƒvƒŒƒCƒ„[
-            lineRenderer.SetPosition(1, grapplePoint);       // I“_Fˆø‚Á‚©‚©‚Á‚½êŠ
+            lineRenderer.SetPosition(0, transform.position);
+            lineRenderer.SetPosition(1, grapplePoint);
         }
     }
 
@@ -56,20 +62,37 @@ public class TarzanAction : MonoBehaviour
             joint.maxDistanceOnly = true;
 
             lineRenderer.positionCount = 2;
-            rb.AddForce(direction * 30f, ForceMode2D.Impulse);
 
-            lineRenderer.positionCount = 2;
-            rb.AddForce(direction * 8f, ForceMode2D.Impulse);
+            rb.AddForce(direction * swingImpulse, ForceMode2D.Impulse);
         }
     }
 
     void StopGrapple()
     {
-        // ƒWƒ‡ƒCƒ“ƒg‚ğíœ‚µ‚Ä‰ğ•ú
         if (joint != null)
         {
             Destroy(joint);
             lineRenderer.positionCount = 0;
+        }
+    }
+    public void Die()
+    {
+        if (!isAlive) return; 
+        isAlive = false; 
+        StopGrapple();   
+
+        rb.linearVelocity = Vector2.zero; 
+        rb.AddForce(Vector2.up * 5f, ForceMode2D.Impulse); 
+        
+
+        Debug.Log("ï¿½vï¿½ï¿½ï¿½Cï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½ï¿½ï¿½Sï¿½ï¿½ï¿½Ü‚ï¿½ï¿½ï¿½ï¿½Bï¿½ï¿½ï¿½ï¿½ï¿½ï¿½~ï¿½ï¿½ï¿½Ü‚ï¿½ï¿½B");
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Trap"))
+        {
+            Die();
         }
     }
 }
