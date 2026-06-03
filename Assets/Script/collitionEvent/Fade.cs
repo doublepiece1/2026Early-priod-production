@@ -8,15 +8,24 @@ public class Fade : MonoBehaviour
 {
     [SerializeField,Header("遷移画像")] Material fadeImage;
     [SerializeField, Header("遷移時間")] float fadeDuration = 1f;
-
-    private void Start()
+    [SerializeField, Header("開始状態")] bool is_stert = false;
+    Tween fadeTween;
+    int Fadevalue = 0;
+    private void Awake()
     {
-        fadeImage.SetFloat("_FadeValue", 0);
+        Fadevalue = is_stert ? 1 : 0;
+        fadeImage.SetFloat("_FadeValue", Fadevalue);
     }
-
+    public void SetFadeMaterial(Material fade)
+    {
+        fadeImage = fade;
+        GetComponent<SpriteRenderer>().material = fadeImage;
+    }
     public void FadeImage(bool fade)
     {
-        fadeImage.DOFloat((fade ? 1 : 0), "_FadeValue", fadeDuration);
+        Debug.Log(fadeImage.GetFloat("_FadeValue"));
+        fadeTween?.Kill();
+        fadeTween = fadeImage.DOFloat(fade ? 1 : 0, "_FadeValue", fadeDuration);
         Debug.Log("Fade");
     }
 }

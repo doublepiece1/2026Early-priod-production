@@ -1572,7 +1572,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: GameObjectScene
+          m_StringArgument: PracticeScene
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!1 &1672086858
@@ -2054,6 +2054,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Fade
   fadeImage: {fileID: 2100000, guid: 2cf4944eb334cc84a88de987619ae01c, type: 2}
   fadeDuration: 1
+  is_stert: 0
 --- !u!212 &2119554792
 SpriteRenderer:
   serializedVersion: 2
