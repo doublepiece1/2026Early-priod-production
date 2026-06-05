@@ -9,7 +9,7 @@ namespace Kounosuke
         protected override void CollitionEvent()
         {
             Debug.Log("Fade action");
-            gameManager.PlayerDeath(material);
+            gameManager.CallFade(material);
         }
     }
 }

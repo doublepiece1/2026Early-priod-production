@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 8374185}
   - component: {fileID: 8374184}
   - component: {fileID: 8374183}
+  - component: {fileID: 8374186}
   - component: {fileID: 8374182}
   m_Layer: 0
   m_Name: Triangle (1)
@@ -150,7 +151,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3947c44c8ee181f4eb4c9ca9fa0d61f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Kounosuke.DoTween_liner
-  move_vec: {x: 10, y: 0, z: 0}
+  move_vec: {x: 40, y: 0, z: 0}
   time_: 5
   loop_count: -1
   loop_mode: 1
@@ -269,12 +270,40 @@ Transform:
   m_GameObject: {fileID: 8374181}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.32, y: -1.49, z: 0}
+  m_LocalPosition: {x: -16.03, y: -1.49, z: 0}
   m_LocalScale: {x: 1, y: 5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8374186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8374181}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7f05c6bf3b84f4693f85b90021d638, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Kounosuke.GimmickActive
+  ResetObj:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 8374182}
+        m_TargetAssemblyTypeName: Kounosuke.DoTween_liner, Assembly-CSharp
+        m_MethodName: ResetLiner
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  GimmickObj: {fileID: 8374181}
 --- !u!1 &79703886
 GameObject:
   m_ObjectHideFlags: 0
@@ -664,6 +693,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Kounosuke.GameManager
   Score_: 0
   fade_obj: {fileID: 79703887}
+  GimmickObj:
+  - {fileID: 8374181}
 --- !u!4 &756563747
 Transform:
   m_ObjectHideFlags: 0
@@ -3822,6 +3853,7 @@ GameObject:
   - component: {fileID: 1820294598}
   - component: {fileID: 1820294597}
   - component: {fileID: 1820294596}
+  - component: {fileID: 1820294600}
   m_Layer: 0
   m_Name: Ground
   m_TagString: DeadZone
@@ -5129,6 +5161,24 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!114 &1820294600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1820294594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f99d18de87afac64dab181b6de953498, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Kounosuke.CollitionFade
+  TagName_: Player
+  CallBack_:
+    m_PersistentCalls:
+      m_Calls: []
+  gameManager: {fileID: 756563746}
+  material: {fileID: 2100000, guid: 3f9fb93cb954e9e4f8518fe6bdaf20ca, type: 2}
 --- !u!1001 &1842935525
 PrefabInstance:
   m_ObjectHideFlags: 0

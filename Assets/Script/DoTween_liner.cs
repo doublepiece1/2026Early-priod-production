@@ -11,10 +11,26 @@ namespace Kounosuke
         [SerializeField, Header("ループモード")] private LoopType loop_mode = LoopType.Yoyo;
         [SerializeField, Header("移動方法")] private Ease ease_mode = Ease.Linear;
         Vector3 start_pos;
+        private Tween moveTween;
+
         private void Start()
         {
             start_pos = transform.position;
-            this.transform.DOMove(start_pos + move_vec, time_).SetLoops(loop_count, loop_mode).SetEase(Ease.Linear);
+            MoveLiner();
+        }
+        public void ResetLiner()
+        {
+            transform.position = start_pos;
+            MoveLiner();
+        }
+
+        private void MoveLiner()
+        {
+            if (moveTween != null && moveTween.IsActive()) {
+                moveTween.Kill();
+            }
+
+            moveTween = this.transform.DOMove(start_pos + move_vec, time_).SetLoops(loop_count, loop_mode).SetEase(Ease.Linear);
         }
     }
 }
