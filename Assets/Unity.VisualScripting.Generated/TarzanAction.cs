@@ -8,6 +8,8 @@ public class TarzanAction : MonoBehaviour
     public float maxDistance = 3f; //糸が届く距離
     public float releaseBoost = 5f;//吹っ飛び速度
 
+    public float ropeShotSpeed = 60f;
+
     [Header("振り子設定")]
     public float gravity = 13f;//数字がでかいほど爽快感が増す
     public float airResistance = 0.1f;//空気抵抗
@@ -18,8 +20,13 @@ public class TarzanAction : MonoBehaviour
     private Rigidbody2D rb;
     private LineRenderer lineRenderer;
 
+    private bool isShooting = false;
     private bool isGrappling = false;
+
+
     private Vector2 grapplePoint;
+    private Vector2 shotDirection;
+    private float currentRopeLength;
     private float ropeLength;
     private float angle;
     private float angleVelocity;
@@ -49,17 +56,21 @@ public class TarzanAction : MonoBehaviour
             StopGrapple();
         }
 
-        if (isGrappling)
+        if (isShooting || isGrappling)
         {
-            if (handAncorPoint != null)
+            Vector2 startPos = (handAncorPoint != null) ? (Vector2)handAncorPoint.position : (Vector2)transform.position;
+            lineRenderer.SetPosition(0, startPos);
+
+            if (isShooting)
             {
-            lineRenderer.SetPosition(0,handAncorPoint.position);
+                Vector2 currentTipPos = startPos + shotDirection * currentRopeLength;
+                lineRenderer.SetPosition(1, currentTipPos);
             }
             else 
             {
-                lineRenderer.SetPosition(0,transform.position);
+                lineRenderer.SetPosition(1, grapplePoint);
             }
-            lineRenderer.SetPosition(1, grapplePoint);
+            
         }
     }
 
@@ -126,7 +137,7 @@ public class TarzanAction : MonoBehaviour
             lineRenderer.positionCount = 0;
 
             transform.rotation = Quaternion .identity;
-            if (rb.linearVelocity.magnitude > 0.5f) 
+            if (rb.linearVelocity.magnitude > 1f) 
             {
                 rb.AddForce(rb.linearVelocity.normalized * releaseBoost, ForceMode2D.Impulse);
             }
