@@ -112,7 +112,6 @@ public class TarzanAction : MonoBehaviour
             angle = Mathf.Atan2(connectionToPlayer.x, -connectionToPlayer.y);
 
             angleVelocity = rb.linearVelocity.x / ropeLength;
-            //angleVelocity = rb.linearVelocity.y/ ropeLength;
 
             isGrappling = true;
             lineRenderer.positionCount = 2;
@@ -145,9 +144,16 @@ public class TarzanAction : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Trap"))
+        if (isGrappling && ((1 << collision.gameObject.layer) & grappleLayer) != 0)
         {
-            Die();
+            foreach (ContactPoint2D contact in collision.contacts) 
+            {
+                if (Mathf.Abs(contact.normal.x) > 0.7f) //ここで角度を色々いじる
+                {
+                    StopGrapple();
+                    break;
+                }
+            }
         }
     }
 }
