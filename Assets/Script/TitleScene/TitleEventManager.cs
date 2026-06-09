@@ -2,11 +2,10 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using DG.Tweening;
 using UnityEngine.InputSystem.LowLevel;
 using Cysharp.Threading.Tasks;
+using Kounosuke;
 
 public class TitleEventManager : MonoBehaviour
 {
@@ -102,6 +101,6 @@ public class TitleEventManager : MonoBehaviour
     {
         fade_.FadeImage(true);
         await UniTask.Delay(1000);
-        SceneManager.LoadScene(str);
+        SceneFlowManager.Instance().MoveGameScene();
     }
 }
