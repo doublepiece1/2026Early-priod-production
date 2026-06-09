@@ -95,7 +95,7 @@ public class TitleEventManager : MonoBehaviour
 
     public void OnStartButton(string str)
     {
-        Load(str);
+        Load(str).Forget();
     }
 
     public async UniTask Load(string str)

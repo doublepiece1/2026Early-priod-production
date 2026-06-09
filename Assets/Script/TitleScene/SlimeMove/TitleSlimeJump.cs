@@ -24,7 +24,7 @@ namespace Kounosuke
             if (animator_ != null) {
                 animator_.SetBool("IsGround", false);
             }
-            transform.DOMove(vec_, 1).SetLoops(2, LoopType.Yoyo).OnComplete(() =>
+            transform.DOMove(vec_, time_).SetLoops(2, LoopType.Yoyo).OnComplete(() =>
             {
                 if (animator_ != null)
                 {

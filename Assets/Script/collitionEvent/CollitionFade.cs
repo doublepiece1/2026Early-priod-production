@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace Kounosuke
@@ -9,7 +10,7 @@ namespace Kounosuke
         protected override void CollitionEvent()
         {
             Debug.Log("Fade action");
-            gameManager.CallFade(material);
+            gameManager.CallFade(material).Forget();
         }
     }
 }

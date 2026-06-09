@@ -30,7 +30,7 @@ namespace Kounosuke
                 moveTween.Kill();
             }
 
-            moveTween = this.transform.DOMove(start_pos + move_vec, time_).SetLoops(loop_count, loop_mode).SetEase(Ease.Linear);
+            moveTween = this.transform.DOMove(start_pos + move_vec, time_).SetLoops(loop_count, loop_mode).SetEase(ease_mode);
         }
     }
 }

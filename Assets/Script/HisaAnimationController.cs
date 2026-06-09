@@ -5,10 +5,7 @@ namespace Kounosuke
 {
     public class HisaAnimationController : MonoBehaviour
     {
-        [SerializeField,Header("アニメーター")]private Animator m_Animator;
-        bool IsFalled_ = false;
-        bool IsGoal = false;
-        bool IsJump = false;
+        [SerializeField, Header("アニメーター")] private Animator m_Animator;
         [SerializeField, Header("リジットボディ")] Rigidbody rb;
 
         void Update()
