@@ -2,6 +2,9 @@ using UnityEngine;
 using UnityEngine.Events;
 
 namespace Kounosuke {
+    /// <summary>
+    /// ギミックを使用する際にアクティブ状態を切り替えれるように親としてくっつけるスクリプト
+    /// </summary>
     public class GimmickActive : GimmickBase
     {
         [SerializeField, Header("ギミックのリセットイベント")] private UnityEvent ResetObj;

@@ -1,8 +1,10 @@
 using Cysharp.Threading.Tasks;
 using NUnit.Framework;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
 namespace Kounosuke
@@ -18,6 +20,9 @@ namespace Kounosuke
         [SerializeField, InspectorName("FadeObj")] private Fade fade_obj;
         [SerializeField, Tooltip("残り時間タイマー")] private float timer;
         [SerializeField, Tooltip("ゲームシーンことのタイマー時間")] private float sceneTime;
+
+        [Header("ゲームUI")]
+        [SerializeField, Tooltip("タイマーテキスト")] private TextMeshProUGUI timerText;
 
         [Header("ギミック")]
         [SerializeField] private int a;
@@ -37,7 +42,12 @@ namespace Kounosuke
                 maxCoinCount++;
             }
 
-            Reset_Game();
+            //  ギミックスタート
+            GimmickBase[] gimmicks = FindObjectsByType<GimmickBase>(FindObjectsSortMode.None);
+            foreach (var gimmick in gimmicks) {
+                gimmick.OnStart();
+            }
+
             wait_start().Forget();
         }
 
@@ -62,6 +72,7 @@ namespace Kounosuke
             }
             else {
                 //  タイマーテキスト変更するかも
+                timerText.text = "Time : " + timer.ToString("f1");
             }
         }
 
@@ -70,9 +81,10 @@ namespace Kounosuke
         /// ゲームリセット関数
         /// </summary>
         void Reset_Game() {
+            Debug.Log("GameReset");
+
             Score_ = 0;            
             coinCount = 0;
-
 
             //  コインリセット
             TarggerCoinScripts[] coins = FindObjectsByType<TarggerCoinScripts>(FindObjectsSortMode.None);

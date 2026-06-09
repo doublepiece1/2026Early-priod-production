@@ -1,4 +1,3 @@
-using UnityEditor.iOS;
 using UnityEngine;
 
 public class TarzanAction : MonoBehaviour
@@ -23,7 +22,6 @@ public class TarzanAction : MonoBehaviour
     private float ropeLength;
     private float angle;
     private float angleVelocity;
-
 
     private bool isAlive = true;
 
@@ -144,12 +142,12 @@ public class TarzanAction : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-<<<<<<< HEAD
+
         //if (collision.gameObject.CompareTag("Trap"))
         //{
         //    Die();
         //}
-=======
+
         if (isGrappling && ((1 << collision.gameObject.layer) & grappleLayer) != 0)
         {
             foreach (ContactPoint2D contact in collision.contacts) 
@@ -161,6 +159,5 @@ public class TarzanAction : MonoBehaviour
                 }
             }
         }
->>>>>>> origin/main
     }
 }

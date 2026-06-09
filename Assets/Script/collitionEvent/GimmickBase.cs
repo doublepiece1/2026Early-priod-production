@@ -8,6 +8,7 @@ namespace Kounosuke
         void OnStart();
         void OnReset();
     }
+
     //ゲームシーンギミック基底関数
     public class GimmickBase : MonoBehaviour, GimmickInterface
     {

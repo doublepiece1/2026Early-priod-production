@@ -1,21 +1,26 @@
-using UnityEngine;
 using DG.Tweening;
 using Unity.VisualScripting;
+using UnityEngine;
+using static UnityEditor.PlayerSettings;
 using Sequence = DG.Tweening.Sequence;
 
 namespace Kounosuke
 {
-
     public class CollitionMoveFllor : MonoBehaviour
     {
-        [SerializeField,Header("移動地点の目印のVector3 + 移動にかかる時間")] private Vector4[] Move_Points;
+        [SerializeField,Header("移動地点の目印のVector3 + 移動にかかる時間")] private Vector3[] Move_Points;
         [SerializeField, Header("最終的に停止して、消滅するまでの時間")] private float stopTime = 1;
+
+        private Rigidbody2D rb;
         private Vector3 start_pos;
 
         private Sequence moveSequence;
 
-        private void Start()
-        {
+        /// <summary>
+        /// ギミックスタート関数
+        /// </summary>
+        public void Start() {
+            rb = GetComponent<Rigidbody2D>();
             start_pos = transform.position;
             ResetMoveFloor();
         }
@@ -25,30 +30,30 @@ namespace Kounosuke
             if (!collision.gameObject.CompareTag("Player")) {
                 return;
             }
-            Debug.Log("あいうえお");
+
             ContactPoint2D contact = collision.GetContact(0);
 
-            MoveAction();
-            if (contact.normal.y > 0.5f)  {
+            if (contact.normal.y < 0.5f)  {
                 Debug.Log("Player Collision Up");
-                
+                MoveAction();
             }
         }
 
+        /// <summary>
+        /// 移動本体関数
+        /// </summary>
         private void MoveAction()
         {
             if (Move_Points == null || Move_Points.Length == 0) {
                 return;
             }
-
-            moveSequence?.Kill();
             moveSequence = DOTween.Sequence();
 
             //ポイント追加
-            foreach (Vector4 point in Move_Points) {
-                var time = point.w;
-                var pos = new Vector3(point.x, point.y, point.z);
-                moveSequence.Append(transform.DOMove(pos, time).SetEase(Ease.Linear));
+            foreach (Vector3 point in Move_Points) {
+                var time = point.z;
+                var pos = new Vector2(point.x, point.y);
+                moveSequence.Append(rb.DOMove(pos, time).SetEase(Ease.Linear));
             }
 
             //  ここに数秒間停止する処理を追加
@@ -60,9 +65,21 @@ namespace Kounosuke
             });
         }
 
+        /// <summary>
+        /// ギミックリセット関数
+        /// </summary>
+        public void OnReset() {
+            ResetMoveFloor();
+        }
+
+        /// <summary>
+        /// リセット本体
+        /// </summary>
         public void ResetMoveFloor()
         {
             transform.position = start_pos;
+            this.gameObject.SetActive(true);
+            moveSequence?.Kill();
         }
     }
 }
