@@ -6,7 +6,7 @@ namespace Kounosuke
     public class ColitionEventBase : MonoBehaviour
     {
         [SerializeField, Header("タグ")] protected string TagName_;
-        [SerializeField, Header("衝突後後処理関数")] protected UnityEvent CallBack_;
+        [SerializeField, Header("衝突後後処理関数 (メイン処理後の後処理用)")] protected UnityEvent CallBack_;
 
         virtual protected void Start() {
             if (TagName_ == null)
