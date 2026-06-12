@@ -1141,6 +1141,7 @@ MonoBehaviour:
     m_Bits: 256
   maxDistance: 30
   releaseBoost: 5
+  ropeShotSpeed: 60
   gravity: 13
   airResistance: 0.1
   handAncorPoint: {fileID: 0}
