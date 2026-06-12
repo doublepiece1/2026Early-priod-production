@@ -8,8 +8,11 @@ public class TarzanAction : MonoBehaviour
     public float maxDistance = 3f; //糸が届く距離
     public float releaseBoost = 5f;//吹っ飛び速度
 
+<<<<<<< HEAD
     public float ropeShotSpeed = 60f;
 
+=======
+>>>>>>> origin/SpaceBranch
     [Header("振り子設定")]
     public float gravity = 13f;//数字がでかいほど爽快感が増す
     public float airResistance = 0.1f;//空気抵抗
@@ -20,6 +23,7 @@ public class TarzanAction : MonoBehaviour
     private Rigidbody2D rb;
     private LineRenderer lineRenderer;
 
+<<<<<<< HEAD
     private bool isShooting = false;
     private bool isGrappling = false;
 
@@ -31,6 +35,13 @@ public class TarzanAction : MonoBehaviour
     private float angle;
     private float angleVelocity;
 
+=======
+    private bool isGrappling = false;
+    private Vector2 grapplePoint;
+    private float ropeLength;
+    private float angle;
+    private float angleVelocity;
+>>>>>>> origin/SpaceBranch
 
     private bool isAlive = true;
 
@@ -56,6 +67,7 @@ public class TarzanAction : MonoBehaviour
             StopGrapple();
         }
 
+<<<<<<< HEAD
         if (isShooting || isGrappling)
         {
             Vector2 startPos = (handAncorPoint != null) ? (Vector2)handAncorPoint.position : (Vector2)transform.position;
@@ -71,6 +83,51 @@ public class TarzanAction : MonoBehaviour
                 lineRenderer.SetPosition(1, grapplePoint);
             }
             
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (!isAlive) return;
+
+        if (isGrappling) 
+        {
+            Vector2 connectionToPlayer = (Vector2)transform.position - grapplePoint;
+
+            angle = Mathf.Atan2(connectionToPlayer.x, -connectionToPlayer.y);
+
+            float angleAcceleration = -gravity * Mathf.Sin(angle) / ropeLength;
+
+            angleVelocity += angleAcceleration * Time.fixedDeltaTime;
+            angleVelocity *= (1f - airResistance * Time.fixedDeltaTime);
+            angle += angleVelocity * Time.fixedDeltaTime;
+
+            Vector2 newOffset = new Vector2(Mathf.Sin(angle), -Mathf.Cos(angle)) * ropeLength;
+            Vector2 newPosition = grapplePoint + newOffset;
+
+            Vector2 tangentVelocity = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (angleVelocity * ropeLength);
+
+            rb.position = newPosition;
+            rb.linearVelocity = tangentVelocity;
+
+            float degreeAngle = angle * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(0, 0, degreeAngle);
+
+
+
+=======
+        if (isGrappling)
+        {
+            if (handAncorPoint != null)
+            {
+            lineRenderer.SetPosition(0,handAncorPoint.position);
+            }
+            else 
+            {
+                lineRenderer.SetPosition(0,transform.position);
+            }
+            lineRenderer.SetPosition(1, grapplePoint);
+>>>>>>> origin/SpaceBranch
         }
     }
 
@@ -137,7 +194,11 @@ public class TarzanAction : MonoBehaviour
             lineRenderer.positionCount = 0;
 
             transform.rotation = Quaternion .identity;
+<<<<<<< HEAD
             if (rb.linearVelocity.magnitude > 1f) 
+=======
+            if (rb.linearVelocity.magnitude > 0.5f) 
+>>>>>>> origin/SpaceBranch
             {
                 rb.AddForce(rb.linearVelocity.normalized * releaseBoost, ForceMode2D.Impulse);
             }
@@ -155,6 +216,15 @@ public class TarzanAction : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+<<<<<<< HEAD
+=======
+
+        //if (collision.gameObject.CompareTag("Trap"))
+        //{
+        //    Die();
+        //}
+
+>>>>>>> origin/SpaceBranch
         if (isGrappling && ((1 << collision.gameObject.layer) & grappleLayer) != 0)
         {
             foreach (ContactPoint2D contact in collision.contacts) 
