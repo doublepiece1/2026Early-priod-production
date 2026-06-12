@@ -101,6 +101,6 @@ public class TitleEventManager : MonoBehaviour
     {
         fade_.FadeImage(true);
         await UniTask.Delay(1000);
-        SceneFlowManager.Instance().MoveGameScene();
+        SceneFlowManager.Instance().MoveSelectScene();
     }
 }
