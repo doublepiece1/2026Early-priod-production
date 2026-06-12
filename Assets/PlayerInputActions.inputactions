@@ -27,7 +27,7 @@
                 {
                     "name": "Jump",
                     "type": "Button",
-                    "id": "6e1364e9-a918-4941-9b5b-289fb6347095",
+                    "id": "ee92a9c7-c987-4f3d-a0d5-75a52fe23e2e",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -47,17 +47,6 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "",
-                    "id": "56103864-39d0-4f12-840d-2099f60c24b2",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
                     "name": "2D Vector",
                     "id": "d7674538-6ea2-4f77-8619-1fec5ba2b221",
                     "path": "2DVector",
@@ -67,17 +56,6 @@
                     "action": "Move",
                     "isComposite": true,
                     "isPartOfComposite": false
-                },
-                {
-                    "name": "down",
-                    "id": "bf40cf44-e041-4ea6-908f-4f9fabfe105c",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Move",
-                    "isComposite": false,
-                    "isPartOfComposite": true
                 },
                 {
                     "name": "left",
@@ -103,19 +81,8 @@
                 },
                 {
                     "name": "",
-                    "id": "bdc93fdf-9513-4dae-8948-4d9f987d18d0",
+                    "id": "6655e116-420d-4968-85b0-0adc2364d12d",
                     "path": "<Keyboard>/space",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "6b7c60a2-215a-4357-84aa-61c5b43b92ed",
-                    "path": "<XInputController>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
