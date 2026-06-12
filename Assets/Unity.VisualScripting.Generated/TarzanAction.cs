@@ -1,4 +1,3 @@
-using UnityEditor.iOS;
 using UnityEngine;
 
 public class TarzanAction : MonoBehaviour
@@ -36,6 +35,7 @@ public class TarzanAction : MonoBehaviour
 
     void Start()
     {
+        rb = GetComponent<Rigidbody2D>();
         rb = GetComponent<Rigidbody2D>();
         lineRenderer = GetComponent<LineRenderer>();
         lineRenderer.positionCount = 0;
