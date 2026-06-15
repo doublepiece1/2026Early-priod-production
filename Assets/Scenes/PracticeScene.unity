@@ -783,12 +783,13 @@ GameObject:
   - component: {fileID: 790352757}
   - component: {fileID: 790352756}
   - component: {fileID: 790352755}
-  - component: {fileID: 790352754}
   - component: {fileID: 790352753}
+  - component: {fileID: 790352754}
   - component: {fileID: 790352752}
   - component: {fileID: 790352751}
   - component: {fileID: 790352750}
   - component: {fileID: 790352749}
+  - component: {fileID: 790352758}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -1139,11 +1140,17 @@ MonoBehaviour:
   grappleLayer:
     serializedVersion: 2
     m_Bits: 256
-  maxDistance: 30
+  maxDistance: 20
   releaseBoost: 5
-  gravity: 13
+  ropeShotSpeed: 60
+  gravity: 10
   airResistance: 0.1
   handAncorPoint: {fileID: 0}
+  moveSpeed: 6
+  jumpPower: 8
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &790352756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1165,13 +1172,43 @@ Transform:
   m_GameObject: {fileID: 790352748}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.00078534114, w: 0.9999997}
-  m_LocalPosition: {x: -16, y: 10.76, z: 0}
+  m_LocalPosition: {x: 3.49, y: 1.07, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1109782844}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -0.09}
+--- !u!114 &790352758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 790352748}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.PlayerInput
+  m_Actions: {fileID: -944628639613478452, guid: aff1bd5db157df744a33ce4040b9d04a, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents: []
+  m_NeverAutoSwitchControlSchemes: 0
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
 --- !u!1 &875805792
 GameObject:
   m_ObjectHideFlags: 0
@@ -3501,7 +3538,7 @@ Transform:
   m_GameObject: {fileID: 1166417041}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -28.79, y: 2.06, z: 0}
+  m_LocalPosition: {x: -8.4, y: -2.69, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

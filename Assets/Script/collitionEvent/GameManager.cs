@@ -115,10 +115,11 @@ namespace Kounosuke
         /// <summary>
         /// ゴール関数
         /// </summary>
-        public void GoalEvent()
-        {
-            Wait(2000).Forget();
+        public void GoalEvent() {
+            //Wait(2000).Forget();
             Debug.Log("Goal！！！！！！！");
+
+            //  ゴール時の遷移処理を書く
         }
 
         /// <summary>
