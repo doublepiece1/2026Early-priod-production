@@ -68,6 +68,7 @@ namespace Kounosuke
         {
             timer -= Time.deltaTime;
             if (timer < 0) {
+                timer = sceneTime;
                 Debug.Log("タイマー終了");
             }
             else {
