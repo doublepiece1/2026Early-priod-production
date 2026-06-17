@@ -1,3 +1,4 @@
+using Kounosuke;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -14,7 +15,6 @@ public class GoalTrigger : MonoBehaviour
     }
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("ÉSÅ[Éã");
         if (collision.gameObject.tag == ("Player"))
         {
             if (clearImage != null)
@@ -22,18 +22,8 @@ public class GoalTrigger : MonoBehaviour
                 clearImage.SetActive(true);
 
             }
-            StartCoroutine(gool());
+            //  GameManagerÇ…í ím
+            FindAnyObjectByType<GameManager>().GoalEvent();
         }
-    }
-
-    IEnumerator gool()
-    {
-        for(int i = 0; i < 5; i++)
-        {
-            yield return new WaitForSeconds(1);
-        }
-        SceneManager.LoadScene("TitleScene");
-        yield break;
-        
     }
 }

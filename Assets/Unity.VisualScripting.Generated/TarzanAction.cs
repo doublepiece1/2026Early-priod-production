@@ -392,4 +392,8 @@ public class TarzanAction : MonoBehaviour
 
         rb.linearVelocity = Vector2.zero;
     }
+
+    public void ResetPlayer() {
+        state = State.Grounded;
+    }
 }

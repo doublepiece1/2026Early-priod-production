@@ -9,7 +9,7 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace Kounosuke
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviour, IEventSystemHandler
     {
         [Header("ゲーム内スコア")]
         [SerializeField, Tooltip("スコア")] private int Score_ = 0;
@@ -105,7 +105,7 @@ namespace Kounosuke
         /// </summary>
         /// <param name="fade_material"></param>
         /// <returns></returns>
-        public async UniTask PlayerDeath(Material fade_material)
+        public async UniTask PlayerDeath(Material fade_material = null)
         {
             Fade(true, fade_material);
             await Wait(3000);
@@ -117,9 +117,9 @@ namespace Kounosuke
         /// ゴール関数
         /// </summary>
         public void GoalEvent() {
-            //Wait(2000).Forget();
+            Wait(2000).Forget();
             Debug.Log("Goal！！！！！！！");
-
+            CallFade().Forget();
             //  ゴール時の遷移処理を書く
         }
 

@@ -23,9 +23,7 @@ public class Fade : MonoBehaviour
     }
     public void FadeImage(bool fade)
     {
-        Debug.Log(fadeImage.GetFloat("_FadeValue"));
         fadeTween?.Kill();
         fadeTween = fadeImage.DOFloat(fade ? 1 : 0, "_FadeValue", fadeDuration);
-        Debug.Log("Fade");
     }
 }
