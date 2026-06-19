@@ -5560,7 +5560,7 @@ MonoBehaviour:
   maxCoinCount: 0
   coinCount: 0
   timer: 0
-  sceneTime: 50
+  sceneTime: 180
   timerText: {fileID: 1014240493}
   fadeObj: {fileID: 79703887}
 --- !u!4 &756563747

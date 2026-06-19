@@ -118,6 +118,8 @@ namespace Kounosuke
 
             await FadeAsync(false);
 
+            timer -= 15;
+
             isProcessing = false;
         }
 
