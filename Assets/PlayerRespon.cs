@@ -71,6 +71,7 @@ namespace Kounosuke
 
             if (Hp <= 0)
             {
+                tarzan?.Die();
                 FindAnyObjectByType<GameManager>().PlayerDeath(null).Forget();
                 return;
             }

@@ -380,6 +380,7 @@ public class TarzanAction : MonoBehaviour
 
     public void Die()
     {
+        Debug.Log("DIe");
         if (state == State.Dead)
             return;
 

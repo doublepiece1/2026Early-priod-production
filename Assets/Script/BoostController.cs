@@ -15,6 +15,12 @@ namespace Kounosuke
         [SerializeField] private ParticleSystem boostBurstEffect;
         [SerializeField] private ChargeEffectController chargeEffectBehaviour;
 
+        [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0, 0, 10, 1);
+        [SerializeField] private float speedScale = 10f;
+
+        public float NormalizedGauge => boostGauge / boostMax;
+        public float CurrentSpeed { get; private set; }
+
         private IEffect chargeEffect;
         private Rigidbody2D rb;
 
@@ -35,20 +41,25 @@ namespace Kounosuke
             if (IsReady)
                 return;
 
+            CurrentSpeed = speed;
+
             chargeEffect?.Show();
 
-            boostGauge +=
+            float gain =
                 speed *
                 boostGainMultiplier *
                 Time.fixedDeltaTime;
 
-            if (boostGauge < boostMax)
-                return;
+            boostGauge += gain;
 
-            boostGauge = boostMax;
-            IsReady = true;
 
-            //boostReadyEffect?.Play();
+            if (boostGauge >= boostMax)
+            {
+                boostGauge = boostMax;
+                IsReady = true;
+            }
+
+
         }
 
         public void Release()

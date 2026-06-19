@@ -8,7 +8,7 @@ namespace Kounosuke
         [SerializeField] private Transform center;
 
         [Header("吸引設定")]
-        [SerializeField] private float baseSpeed = 2f;
+        [SerializeField] private float minSpeed = 1f;
         [SerializeField] private float maxSpeed = 10f;
 
         [Range(0f, 1f)]
@@ -17,12 +17,30 @@ namespace Kounosuke
         private ParticleSystem ps;
         private ParticleSystem.Particle[] particles;
 
+        private Vector3 lastCenterPosition;
+
+        [SerializeField] BoostController boost;
+
+        public void SetCharge(float normalized, float speed)
+        {
+            var main = ps.main;
+
+            float t = Mathf.Clamp01(normalized);
+
+            main.simulationSpeed =
+                Mathf.Lerp(minSpeed, maxSpeed, t) *
+                Mathf.InverseLerp(0, 10f, speed);
+        }
+
         private void Awake()
         {
             ps = GetComponent<ParticleSystem>();
 
             int max = Mathf.Max(1, ps.main.maxParticles);
             particles = new ParticleSystem.Particle[max];
+
+            if (center != null)
+                lastCenterPosition = center.position;
         }
 
         private void LateUpdate()
@@ -30,21 +48,33 @@ namespace Kounosuke
             if (center == null)
                 return;
 
+            Vector3 centerDelta =
+                center.position - lastCenterPosition;
+
             int count = ps.GetParticles(particles);
 
-            float speed =
-                Mathf.Lerp(baseSpeed, maxSpeed, intensity);
+            float speed = Mathf.Lerp(minSpeed, maxSpeed, intensity);
+
+            SetCharge(boost.NormalizedGauge, boost.CurrentSpeed);
 
             for (int i = 0; i < count; i++)
             {
-                Vector3 dir =
-                    (center.position - particles[i].position)
-                    .normalized;
+                // プレイヤー移動分を補償
+                particles[i].position += centerDelta;
 
-                particles[i].velocity = dir * speed;
+                // 吸引
+                particles[i].position = Vector3.MoveTowards(
+                    particles[i].position,
+                    center.position,
+                    speed * Time.deltaTime
+                );
             }
 
+
+
             ps.SetParticles(particles, count);
+
+            lastCenterPosition = center.position;
         }
 
         public void SetCenter(Transform target)
