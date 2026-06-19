@@ -12,6 +12,8 @@ public class TarzanAction : MonoBehaviour
     [SerializeField] private LayerMask grappleLayer;
     [SerializeField] private float maxDistance = 3f;
     [SerializeField] private float ropeShotSpeed = 60f;
+    [SerializeField] private float coolTime = 0.5f;
+    private float grappleCooldownTimer;
 
     [Header("Gamepad Aim Assist")]
     [SerializeField] private float aimAssistRadius = 0.5f;
@@ -90,6 +92,9 @@ public class TarzanAction : MonoBehaviour
     {
         if (state == State.Dead)
             return;
+
+        if (grappleCooldownTimer > 0f)
+            grappleCooldownTimer -= Time.deltaTime;
 
         ReadInput();
 
@@ -268,6 +273,9 @@ public class TarzanAction : MonoBehaviour
         if (!TryFindTarget(out RaycastHit2D hit))
             return;
 
+        if (grappleCooldownTimer > 0f)
+            return;
+
         grapplePoint = hit.point;
 
         shotDir =
@@ -296,6 +304,8 @@ public class TarzanAction : MonoBehaviour
     private void StopGrapple()
     {
         ReleaseRope();
+
+        grappleCooldownTimer = coolTime;
 
         boost.Release();
     }
