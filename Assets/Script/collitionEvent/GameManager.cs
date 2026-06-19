@@ -13,7 +13,7 @@ namespace Kounosuke
         [Header("ゲーム内スコア")]
         [SerializeField] private int score = 0;
         [SerializeField] private int maxCoinCount = 0;
-        [SerializeField] private int coinCount = 0;
+        [SerializeField] private int coinCount = 0; //エサ
 
         //==================================================
         // ■ タイマー
@@ -156,10 +156,8 @@ namespace Kounosuke
             Debug.Log("GameReset");
 
             score = 0;
-            coinCount = 0;
-
-            foreach (var coin in coins)
-                coin.OnReset();
+            //foreach (var coin in coins)
+            //    coin.OnReset();
 
             foreach (var gimmick in gimmicks)
                 gimmick.OnReset();
