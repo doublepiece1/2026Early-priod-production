@@ -204,7 +204,7 @@ public class TarzanAction : MonoBehaviour
 
     private void UpdateGrappling()
     {
-        if (grappleReleased)
+        if (grappleReleased || jumpPressed)
             StopGrapple();
     }
 
