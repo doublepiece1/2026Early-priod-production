@@ -13,6 +13,10 @@ public class TarzanAction : MonoBehaviour
     [SerializeField] private float maxDistance = 3f;
     [SerializeField] private float ropeShotSpeed = 60f;
 
+    [Header("Gamepad Aim Assist")]
+    [SerializeField] private float aimAssistRadius = 0.5f;
+    [SerializeField] private float minStickInput = 0.2f;
+
     //==================================================
     // ■ 移動設定
     //==================================================
@@ -204,6 +208,12 @@ public class TarzanAction : MonoBehaviour
 
     private void UpdateGrappling()
     {
+        if (IsGrounded())
+        {
+            StopGrapple();
+            return;
+        }
+
         if (grappleReleased || jumpPressed)
             StopGrapple();
     }
@@ -344,25 +354,94 @@ public class TarzanAction : MonoBehaviour
     // ■ Utility
     //==================================================
 
-    private bool TryFindTarget(
-        out RaycastHit2D hit)
+    private bool TryFindTarget(out RaycastHit2D hit)
     {
-        Vector3 mouse =
-            mainCamera.ScreenToWorldPoint(
-                input.actions["Look"]
-                .ReadValue<Vector2>());
+        bool isGamepad =
+            input.currentControlScheme == "Gamepad";
 
-        Vector2 dir =
-            (mouse - transform.position)
-            .normalized;
+        if (!isGamepad)
+        {
+            Vector3 mouse =
+                mainCamera.ScreenToWorldPoint(
+                    input.actions["Look"]
+                    .ReadValue<Vector2>());
 
-        hit = Physics2D.Raycast(
-            transform.position,
-            dir,
-            maxDistance,
-            grappleLayer);
+            Vector2 dir =
+                ((Vector2)mouse - rb.position)
+                .normalized;
 
-        return hit.collider != null;
+            hit = Physics2D.Raycast(
+                rb.position,
+                dir,
+                maxDistance,
+                grappleLayer);
+
+            return hit.collider != null;
+        }
+
+        // -------------------------
+        // Gamepad Aim Assist
+        // -------------------------
+
+        Vector2 stickDir =
+            input.actions["Look"]
+            .ReadValue<Vector2>();
+
+        if (stickDir.sqrMagnitude <
+            minStickInput * minStickInput)
+        {
+            hit = default;
+            return false;
+        }
+
+        stickDir.Normalize();
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                rb.position,
+                aimAssistRadius,
+                stickDir,
+                maxDistance,
+                grappleLayer);
+
+        if (hits.Length == 0)
+        {
+            hit = default;
+            return false;
+        }
+
+        float bestScore = float.MinValue;
+        int bestIndex = -1;
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Vector2 toTarget =
+                ((Vector2)hits[i].point -
+                 rb.position).normalized;
+
+            float directionScore =
+                Vector2.Dot(
+                    stickDir,
+                    toTarget);
+
+            float distanceScore =
+                1f -
+                (hits[i].distance /
+                 maxDistance);
+
+            float score =
+                directionScore * 0.8f +
+                distanceScore * 0.2f;
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestIndex = i;
+            }
+        }
+
+        hit = hits[bestIndex];
+        return true;
     }
 
     private bool IsGrounded()
