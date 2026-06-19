@@ -15,7 +15,6 @@ namespace Kounosuke
         [SerializeField] private ParticleSystem boostBurstEffect;
         [SerializeField] private ChargeEffectController chargeEffectBehaviour;
 
-        [SerializeField] private AnimationCurve speedCurve = AnimationCurve.EaseInOut(0, 0, 10, 1);
         [SerializeField] private float speedScale = 10f;
 
         public float NormalizedGauge => boostGauge / boostMax;
