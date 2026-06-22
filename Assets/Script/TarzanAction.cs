@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Kounosuke;
 
-public class TarzanAction : MonoBehaviour
+public class TarzanAction : GimmickBase
 {
     //==================================================
     // ■ グラップル設定
@@ -86,6 +86,11 @@ public class TarzanAction : MonoBehaviour
 
         if (trail != null)
             trail.emitting = false;
+    }
+
+    public override void OnReset()
+    {
+        boost.ResetBoost();
     }
 
     private void Update()

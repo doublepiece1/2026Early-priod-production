@@ -26,7 +26,8 @@ namespace Kounosuke
         private float boostGauge;
 
         public bool IsReady { get; private set; }
-        public bool IsInvincible { get; private set; }
+
+        [Tooltip("–³“G")]public bool IsInvincible { get; private set; }
 
         private void Awake()
         {
@@ -108,7 +109,7 @@ namespace Kounosuke
                 ForceMode2D.Impulse);
         }
 
-        private void ResetBoost()
+        public void ResetBoost()
         {
             boostGauge = 0f;
             IsReady = false;
