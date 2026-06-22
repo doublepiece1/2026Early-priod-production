@@ -1,109 +1,178 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Playables;
+using Kounosuke;
 
 public class TarzanAction : MonoBehaviour
 {
+    //==================================================
+    // ■ グラップル設定
+    //==================================================
+
     [Header("ワイヤー設定")]
     [SerializeField] private LayerMask grappleLayer;
-    [SerializeField] private float maxDistance = 3f; //糸が届く距離
-    [SerializeField] private float releaseBoost = 5f;//吹っ飛び速度
-
+    [SerializeField] private float maxDistance = 3f;
     [SerializeField] private float ropeShotSpeed = 60f;
+    [SerializeField] private float coolTime = 0.5f;
+    private float grappleCooldownTimer;
 
-    [Header("振り子設定")]
-    [SerializeField] private float gravity = 13f;//数字がでかいほど爽快感が増す
-    [SerializeField] private float airResistance = 0.1f;//空気抵抗
+    [Header("Gamepad Aim Assist")]
+    [SerializeField] private float aimAssistRadius = 0.5f;
+    [SerializeField] private float minStickInput = 0.2f;
 
-    [Header("描画設定")]
-    [SerializeField] private Transform handAncorPoint;
+    //==================================================
+    // ■ 移動設定
+    //==================================================
 
     [Header("移動設定")]
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float jumpPower = 8f;
     [SerializeField] private LayerMask groundLayer;
 
-    //  参照
-    private Camera mainCamera;
-    private Rigidbody2D rb;
-    private LineRenderer lineRenderer;
+    //==================================================
+    // ■ コンポーネント
+    //==================================================
 
-    //  入力
-    private PlayerInput playerInput;
+    [Header("Components")]
+    [SerializeField] private PendulumController pendulum;
+    [SerializeField] private BoostController boost;
+    [SerializeField] private GrappleRopeRenderer ropeRenderer;
+    [SerializeField] private TrailRenderer trail;
+
+    private Rigidbody2D rb;
+    private PlayerInput input;
+    private Camera mainCamera;
+
+    //==================================================
+    // ■ 入力
+    //==================================================
+
     private Vector2 moveInput;
     private bool jumpPressed;
     private bool grapplePressed;
     private bool grappleReleased;
 
-    private enum GrappleState
+    //==================================================
+    // ■ 状態
+    //==================================================
+
+    private enum State
     {
         Grounded,
         Airborne,
-        Grappling,
         Shooting,
+        Grappling,
         Dead
     }
 
-    private GrappleState state = GrappleState.Grounded;
+    private State state = State.Grounded;
+
+    //==================================================
+    // ■ グラップル情報
+    //==================================================
 
     private Vector2 grapplePoint;
-    private Vector2 shotDirection;
+    private Vector2 shotDir;
     private float currentRopeLength;
-    private float ropeLength;
-    private float angle;
-    private float angleVelocity;
 
-    /// <summary>
-    /// 参照取得関数
-    /// </summary>
+    //==================================================
+    // ■ Unity
+    //==================================================
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        lineRenderer = GetComponent<LineRenderer>();
-        playerInput = GetComponent<PlayerInput>();
-
+        input = GetComponent<PlayerInput>();
         mainCamera = Camera.main;
-        lineRenderer.positionCount = 0;
+
+        if (trail != null)
+            trail.emitting = false;
     }
 
-    /// <summary>
-    /// Update関数
-    /// </summary>
     private void Update()
     {
-        if (state == GrappleState.Dead) return;
+        if (state == State.Dead)
+            return;
+
+        if (grappleCooldownTimer > 0f)
+            grappleCooldownTimer -= Time.deltaTime;
 
         ReadInput();
 
-        switch (state)
-        {
-            case GrappleState.Grounded:
-                UpdateGrounded();
-                break;
-
-            case GrappleState.Airborne:
-                UpdateAirborne();
-                break;
-
-            case GrappleState.Shooting:
-                UpdateShooting();
-                break;
-
-            case GrappleState.Grappling:
-                UpdateGrappling();
-                break;
-        }
+        UpdateState();
 
         UpdateRopeVisual();
     }
 
+    private void FixedUpdate()
+    {
+        switch (state)
+        {
+            case State.Grappling:
+
+                pendulum.Tick(moveInput);
+
+                boost.Charge(
+                    pendulum.Speed);
+
+                break;
+
+            case State.Grounded:
+
+                GroundMove();
+
+                break;
+        }
+    }
+
+    //==================================================
+    // ■ 入力
+    //==================================================
+
     private void ReadInput()
     {
-        moveInput = playerInput.actions["Move"].ReadValue<Vector2>();
+        moveInput =
+            input.actions["Move"]
+            .ReadValue<Vector2>();
 
-        grapplePressed = playerInput.actions["Atack"].WasPressedThisFrame();
-        grappleReleased = playerInput.actions["Atack"].WasReleasedThisFrame();
-        jumpPressed = playerInput.actions["Jump"].WasPressedThisFrame();
+        grapplePressed =
+            input.actions["Atack"]
+            .WasPressedThisFrame();
+
+        grappleReleased =
+            input.actions["Atack"]
+            .WasReleasedThisFrame();
+
+        jumpPressed =
+            input.actions["Jump"]
+            .WasPressedThisFrame();
+    }
+
+    //==================================================
+    // ■ 状態更新
+    //==================================================
+
+    private void UpdateState()
+    {
+        switch (state)
+        {
+            case State.Grounded:
+                UpdateGrounded();
+                break;
+
+            case State.Airborne:
+                UpdateAirborne();
+                break;
+
+            case State.Shooting:
+                UpdateShooting();
+                break;
+
+            case State.Grappling:
+                UpdateGrappling();
+                break;
+        }
+
+        CheckGroundState();
     }
 
     private void UpdateGrounded()
@@ -112,11 +181,7 @@ public class TarzanAction : MonoBehaviour
             StartRopeShot();
 
         if (jumpPressed)
-            TryJump();
-
-        // 地面から離れたら空中へ
-        if (!IsGrounded())
-            state = GrappleState.Airborne;
+            Jump();
     }
 
     private void UpdateAirborne()
@@ -124,368 +189,269 @@ public class TarzanAction : MonoBehaviour
         if (grapplePressed)
             StartRopeShot();
 
-        // 着地したら地上へ
         if (IsGrounded())
-            state = GrappleState.Grounded;
+            state = State.Grounded;
     }
 
     private void UpdateShooting()
     {
-        UpdateRopeShot();
-
-        if (grappleReleased)
-            StopGrapple();
-
-        if (IsGrounded())
-        {
-            state = GrappleState.Grounded;
-        }
-    }
-
-    private void UpdateGrappling()
-    {
-        if (grappleReleased)
-            StopGrapple();
-    }
-
-    /// <summary>
-    /// グラップル処理更新関数
-    /// </summary>
-    private void FixedUpdate()
-    {
-        switch (state)
-        {
-            case GrappleState.Grounded:
-                GroundMove();
-                break;
-
-            case GrappleState.Airborne:
-                break;
-
-            case GrappleState.Grappling:
-                SwingMove();
-                UpdatePendulumMotion();
-                break;
-        }
-    }
-
-    /// <summary>
-    /// 描画関数
-    /// </summary>
-    private void UpdateRopeVisual()
-    {
-        if (state != GrappleState.Shooting && state != GrappleState.Grappling)
-        {
-            return;
-        }
-
-        Vector2 startPos = GetRopeStartPosition();
-
-        lineRenderer.SetPosition(0, startPos);
-
-        if (state == GrappleState.Shooting)
-        {
-            Vector2 tipPos =
-                startPos + shotDirection * currentRopeLength;
-
-            lineRenderer.SetPosition(1, tipPos);
-        }
-        else
-        {
-            lineRenderer.SetPosition(1, grapplePoint);
-        }
-    }
-
-
-    private void GroundMove()
-    {
-        float targetSpeed = moveInput.x * moveSpeed;
-
-        rb.linearVelocity = new Vector2(
-            Mathf.Lerp(
-                rb.linearVelocity.x,
-                targetSpeed,
-                10f * Time.fixedDeltaTime),
-            rb.linearVelocity.y);
-    }
-
-    private void SwingMove()
-    {
-        angleVelocity += moveInput.x * 1.5f * Time.fixedDeltaTime;
-    }
-
-    private void TryJump()
-    {
-        if (!IsGrounded())
-            return;
-
-        Vector2 v = rb.linearVelocity;
-        v.y = jumpPower;
-        rb.linearVelocity = v;
-
-        state = GrappleState.Airborne;
-    }
-
-    /// <summary>
-    /// 描画開始位置取得関数
-    /// </summary>
-    /// <returns></returns>
-    private Vector2 GetRopeStartPosition()
-    {
-        return handAncorPoint != null
-            ? (Vector2)handAncorPoint.position
-            : rb.position;
-    }
-
-    /// <summary>
-    /// グラップル処理関数
-    /// </summary>
-    private void UpdatePendulumMotion()
-    {
-        if (state != GrappleState.Grappling)
-            return;
-
-        CalculatePendulum();
-
-        ApplyPendulumMovement();
-
-        ApplyVisualRotation();
-    }
-
-    /// <summary>
-    /// 振り子計算関数
-    /// </summary>
-    private void CalculatePendulum()
-    {
-        Vector2 offset =
-            rb.position - grapplePoint;
-
-        angle =
-            Mathf.Atan2(offset.x, -offset.y);
-
-        float angularAcceleration =
-            -gravity * Mathf.Sin(angle) / ropeLength;
-
-        angleVelocity +=
-            angularAcceleration *
-            Time.fixedDeltaTime;
-
-        angleVelocity *=
-            (1f - airResistance * Time.fixedDeltaTime);
-
-        angleVelocity = Mathf.Clamp(angleVelocity, -1.4f, 1.4f);
-
-        angle +=
-            angleVelocity *
-            Time.fixedDeltaTime;
-    }
-
-    /// <summary>
-    /// ポジション更新関数
-    /// </summary>
-    private void ApplyPendulumMovement()
-    {
-        Vector2 offset =
-            new Vector2(
-                Mathf.Sin(angle),
-                -Mathf.Cos(angle))
-            * ropeLength;
-
-        Vector2 targetPosition =
-            grapplePoint + offset;
-
-        Vector2 tangentVelocity =
-            new Vector2(
-                Mathf.Cos(angle),
-                Mathf.Sin(angle))
-            * (angleVelocity * ropeLength);
-
-        rb.position = targetPosition;
-        rb.linearVelocity = tangentVelocity;
-    }
-
-    /// <summary>
-    /// 角度更新関数
-    /// </summary>
-    private void ApplyVisualRotation()
-    {
-        float degree =
-            angle * Mathf.Rad2Deg;
-
-        transform.rotation =
-            Quaternion.Euler(0, 0, degree);
-    }
-
-
-    private void StartRopeShot()
-    {
-        if (state != GrappleState.Grounded && state != GrappleState.Airborne)
-        {
-            return;
-        }
-
-        if (!TryFindGrapplePoint(out RaycastHit2D hit))
-            return;
-
-        grapplePoint = hit.point;
-
-        Vector2 startPos = GetRopeStartPosition();
-
-        shotDirection =
-            (grapplePoint - startPos).normalized;
-
-        currentRopeLength = 0f;
-
-        state = GrappleState.Shooting;
-
-        lineRenderer.positionCount = 2;
-    }
-
-    private void UpdateRopeShot()
-    {
-        if (state != GrappleState.Shooting)
-            return;
-
         currentRopeLength +=
             ropeShotSpeed *
             Time.deltaTime;
 
-        float targetDistance =
-            Vector2.Distance(
-                GetRopeStartPosition(),
-                grapplePoint);
-
-        if (currentRopeLength >= targetDistance)
+        if (Vector2.Distance(
+            rb.position,
+            grapplePoint)
+            <= currentRopeLength)
         {
-            BeginGrapple(grapplePoint);
+            BeginGrapple();
+        }
+
+        if (grappleReleased)
+            StopGrapple();
+    }
+
+    private void UpdateGrappling()
+    {
+        if (IsGrounded())
+        {
+            StopGrapple();
+            return;
+        }
+
+        if (grappleReleased || jumpPressed)
+            StopGrapple();
+    }
+
+    private void CheckGroundState()
+    {
+        if (state == State.Grounded &&
+            !IsGrounded())
+        {
+            state = State.Airborne;
         }
     }
 
-    /// <summary>
-    /// グラップル位置取得関数
-    /// </summary>
-    /// <param name="hit"></param>
-    /// <returns></returns>
-    private bool TryFindGrapplePoint(out RaycastHit2D hit)
-    {
-        Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(playerInput.actions["Look"].ReadValue<Vector2>());
+    //==================================================
+    // ■ 地上移動
+    //==================================================
 
-        Vector2 direction =
-            (mouseWorld - transform.position)
+    private void GroundMove()
+    {
+        float target =
+            moveInput.x *
+            moveSpeed;
+
+        rb.linearVelocity =
+            new Vector2(
+                Mathf.Lerp(
+                    rb.linearVelocity.x,
+                    target,
+                    10f * Time.fixedDeltaTime),
+                rb.linearVelocity.y);
+    }
+
+    private void Jump()
+    {
+        if (!IsGrounded())
+            return;
+
+        rb.linearVelocity =
+            new Vector2(
+                rb.linearVelocity.x,
+                jumpPower);
+
+        state = State.Airborne;
+    }
+
+    //==================================================
+    // ■ グラップル
+    //==================================================
+
+    private void StartRopeShot()
+    {
+        if (!TryFindTarget(out RaycastHit2D hit))
+            return;
+
+        if (grappleCooldownTimer > 0f)
+            return;
+
+        grapplePoint = hit.point;
+
+        shotDir =
+            (grapplePoint -
+             (Vector2)transform.position)
             .normalized;
 
-        hit = Physics2D.Raycast(
-            transform.position,
-            direction,
-            maxDistance,
-            grappleLayer);
+        currentRopeLength = 0f;
 
-        return hit.collider != null;
+        state = State.Shooting;
     }
 
-    /// <summary>
-    /// グラップル開始処理関数
-    /// </summary>
-    /// <param name="point"></param>
-    private void BeginGrapple(Vector2 point)
+    private void BeginGrapple()
     {
-        grapplePoint = point;
+        pendulum.Begin(grapplePoint);
 
-        ropeLength =
-            Vector2.Distance(
-                rb.position,
-                grapplePoint);
+        state = State.Grappling;
 
-        InitializePendulum();
-
-        state = GrappleState.Grappling;
-
-        lineRenderer.positionCount = 2;
-    }
-    
-    /// <summary>
-    /// 初期化関数
-    /// </summary>
-    private void InitializePendulum()
-    {
-        Vector2 offset = rb.position - grapplePoint;
-
-        angle = Mathf.Atan2(offset.x, -offset.y);
-
-        Vector2 tangent = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-
-        float tangentialSpeed = Vector2.Dot(rb.linearVelocity, tangent);
-
-        angleVelocity = tangentialSpeed / ropeLength;
+        if (trail != null)
+        {
+            trail.Clear();
+            //trail.emitting = true;
+        }
     }
 
-    /// <summary>
-    /// グラップル終了関数
-    /// </summary>
     private void StopGrapple()
     {
-        bool wasGrappling =
-        state == GrappleState.Grappling;
-
-        if (!wasGrappling &&
-            state != GrappleState.Shooting)
-            return;
-
         ReleaseRope();
 
-        if (wasGrappling)
-            ApplyReleaseBoost();
+        grappleCooldownTimer = coolTime;
+
+        boost.Release();
     }
 
-    /// <summary>
-    /// グラップル
-    /// </summary>
     private void ReleaseRope()
     {
-        state = IsGrounded()
-        ? GrappleState.Grounded
-        : GrappleState.Airborne;
+        pendulum.ResetPendulum();
 
-        lineRenderer.positionCount = 0;
+        state =
+            IsGrounded()
+            ? State.Grounded
+            : State.Airborne;
 
-        transform.rotation = Quaternion.identity;
-    }
-
-    /// <summary>
-    /// 終了時に加速する処理
-    /// </summary>
-    private void ApplyReleaseBoost()
-    {
-        if (rb.linearVelocity.magnitude <= 0.5f)
-            return;
-
-        rb.AddForce(
-            rb.linearVelocity.normalized *
-            releaseBoost,
-            ForceMode2D.Impulse);
-    }
-
-    /// <summary>
-    /// 死亡処理関数
-    /// </summary>
-    public void Die()
-    {
-        if (state == GrappleState.Dead)
-            return;
-
-        if (state == GrappleState.Grappling ||
-            state == GrappleState.Shooting)
+        if (trail != null)
         {
-            ReleaseRope();
+            //   trail.emitting = false;
+        }
+    }
+
+    //==================================================
+    // ■ ロープ描画
+    //==================================================
+
+    private void UpdateRopeVisual()
+    {
+        Vector2 start = transform.position;
+
+        switch (state)
+        {
+            case State.Shooting:
+
+                ropeRenderer.DrawShot(
+                    start,
+                    shotDir,
+                    currentRopeLength);
+
+                break;
+
+            case State.Grappling:
+
+                ropeRenderer.DrawConnected(
+                    start,
+                    grapplePoint);
+
+                break;
+
+            default:
+
+                ropeRenderer.Hide();
+
+                break;
+        }
+    }
+
+    //==================================================
+    // ■ Utility
+    //==================================================
+
+    private bool TryFindTarget(out RaycastHit2D hit)
+    {
+        bool isGamepad =
+            input.currentControlScheme == "Gamepad";
+
+        if (!isGamepad)
+        {
+            Vector3 mouse =
+                mainCamera.ScreenToWorldPoint(
+                    input.actions["Look"]
+                    .ReadValue<Vector2>());
+
+            Vector2 dir =
+                ((Vector2)mouse - rb.position)
+                .normalized;
+
+            hit = Physics2D.Raycast(
+                rb.position,
+                dir,
+                maxDistance,
+                grappleLayer);
+
+            return hit.collider != null;
         }
 
-        state = GrappleState.Dead;
+        // -------------------------
+        // Gamepad Aim Assist
+        // -------------------------
 
-        rb.linearVelocity = Vector2.zero;
-        rb.AddForce(Vector2.up * 8f,
-            ForceMode2D.Impulse);
+        Vector2 stickDir =
+            input.actions["Look"]
+            .ReadValue<Vector2>();
 
-        Debug.Log("プレイヤーが死亡したので操作を停止します");
+        if (stickDir.sqrMagnitude <
+            minStickInput * minStickInput)
+        {
+            hit = default;
+            return false;
+        }
+
+        stickDir.Normalize();
+
+        RaycastHit2D[] hits =
+            Physics2D.CircleCastAll(
+                rb.position,
+                aimAssistRadius,
+                stickDir,
+                maxDistance,
+                grappleLayer);
+
+        if (hits.Length == 0)
+        {
+            hit = default;
+            return false;
+        }
+
+        float bestScore = float.MinValue;
+        int bestIndex = -1;
+
+        for (int i = 0; i < hits.Length; i++)
+        {
+            Vector2 toTarget =
+                ((Vector2)hits[i].point -
+                 rb.position).normalized;
+
+            float directionScore =
+                Vector2.Dot(
+                    stickDir,
+                    toTarget);
+
+            float distanceScore =
+                1f -
+                (hits[i].distance /
+                 maxDistance);
+
+            float score =
+                directionScore * 0.8f +
+                distanceScore * 0.2f;
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestIndex = i;
+            }
+        }
+
+        hit = hits[bestIndex];
+        return true;
     }
 
     private bool IsGrounded()
@@ -494,32 +460,30 @@ public class TarzanAction : MonoBehaviour
             rb.position,
             Vector2.down,
             0.4f,
-            groundLayer
-        );
+            groundLayer);
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    //==================================================
+    // ■ 死亡
+    //==================================================
+
+    public void Die()
     {
-        if (!ShouldReleaseGrapple(collision))
+        Debug.Log("DIe");
+        if (state == State.Dead)
             return;
 
-        StopGrapple();
+        if (boost.IsInvincible)
+            return;
+
+        ReleaseRope();
+
+        state = State.Dead;
+
+        rb.linearVelocity = Vector2.zero;
     }
 
-    private bool ShouldReleaseGrapple(Collision2D collision)
-    {
-        if (state != GrappleState.Grappling)
-            return false;
-
-        if (((1 << collision.gameObject.layer) & grappleLayer) == 0)
-            return false;
-
-        foreach (ContactPoint2D contact in collision.contacts)
-        {
-            if (Mathf.Abs(contact.normal.x) > 0.7f)
-                return true;
-        }
-
-        return false;
+    public void ResetPlayer() {
+        state = State.Grounded;
     }
 }

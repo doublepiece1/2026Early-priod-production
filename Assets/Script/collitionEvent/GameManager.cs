@@ -1,182 +1,195 @@
 using Cysharp.Threading.Tasks;
-using NUnit.Framework;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
-using static UnityEngine.GraphicsBuffer;
 
 namespace Kounosuke
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : MonoBehaviour, IEventSystemHandler
     {
+        //==================================================
+        // ■ スコア
+        //==================================================
         [Header("ゲーム内スコア")]
-        [SerializeField, Tooltip("スコア")] private int Score_ = 0;
-        [SerializeField, Tooltip("Scene内コイン数 (ゲームSceneスタート時自動カウント)")] private int maxCoinCount = 0;
-        [SerializeField, Tooltip("取得したコイン数")] private int coinCount = 0;
+        [SerializeField] private int score = 0;
+        [SerializeField] private int maxCoinCount = 0;
+        [SerializeField] private int coinCount = 0; //エサ
 
+        //==================================================
+        // ■ タイマー
+        //==================================================
+        [Header("ゲームタイマー")]
+        [SerializeField] private float timer;
+        [SerializeField] private float sceneTime;
+        [SerializeField] private TextMeshProUGUI timerText;
+
+        private bool isTimerActive = true;
+
+        //==================================================
+        // ■ 演出
+        //==================================================
         [Header("ゲーム演出")]
-        [SerializeField, InspectorName("FadeObj")] private Fade fade_obj;
-        [SerializeField, Tooltip("残り時間タイマー")] private float timer;
-        [SerializeField, Tooltip("ゲームシーンことのタイマー時間")] private float sceneTime;
+        [SerializeField] private Fade fadeObj;
 
-        [Header("ゲームUI")]
-        [SerializeField, Tooltip("タイマーテキスト")] private TextMeshProUGUI timerText;
+        private bool isProcessing = false;
 
-        [Header("ギミック")]
-        [SerializeField] private int a;
+        //==================================================
+        // ■ キャッシュ
+        //==================================================
+        private TarggerCoinScripts[] coins;
+        private GimmickBase[] gimmicks;
 
-        /// <summary>
-        /// Sceneスタート関数
-        /// </summary>
-        void Start()
+        //==================================================
+        // ■ Unity
+        //==================================================
+        private void Start()
         {
-            timer = sceneTime;
-            maxCoinCount = 0;
-
-            //  コイン全取得
-            TarggerCoinScripts[] coins = FindObjectsByType<TarggerCoinScripts>(FindObjectsSortMode.None);
-            foreach (var coin in coins) {
-                coin.OnStart(this);
-                maxCoinCount++;
-            }
-
-            //  ギミックスタート
-            GimmickBase[] gimmicks = FindObjectsByType<GimmickBase>(FindObjectsSortMode.None);
-            foreach (var gimmick in gimmicks) {
-                gimmick.OnStart();
-            }
-
-            wait_start().Forget();
+            InitializeGame();
+            StartGameFlow().Forget();
         }
 
-        /// <summary>
-        /// スタートフェード制御関数
-        /// </summary>
-        /// <returns></returns>
-        async UniTask wait_start()
-        {
-            await Wait(1000);
-            Fade(false);
-        }
-
-        /// <summary>
-        /// タイマー用みたいになってる UpDate()
-        /// </summary>
         private void Update()
         {
-            timer -= Time.deltaTime;
-            if (timer < 0) {
-                Debug.Log("タイマー終了");
-            }
-            else {
-                //  タイマーテキスト変更するかも
-                timerText.text = "Time : " + timer.ToString("f1");
-            }
+            UpdateTimer();
         }
 
-
-        /// <summary>
-        /// ゲームリセット関数
-        /// </summary>
-        void Reset_Game() {
-            Debug.Log("GameReset");
-
-            Score_ = 0;            
-            coinCount = 0;
-
-            //  コインリセット
-            TarggerCoinScripts[] coins = FindObjectsByType<TarggerCoinScripts>(FindObjectsSortMode.None);
-            foreach (var coin in coins) {
-                coin.OnReset();
-            }
-
-            //  ギミックリセット
-            GimmickBase[] gimmicks = FindObjectsByType<GimmickBase>(FindObjectsSortMode.None);
-            foreach (var gimmick in gimmicks) {
-                gimmick.OnReset();
-            }
-        }
-
-        /// <summary>
-        /// プレイヤー死亡時処理関数
-        /// </summary>
-        /// <param name="fade_material"></param>
-        /// <returns></returns>
-        public async UniTask PlayerDeath(Material fade_material)
+        //==================================================
+        // ■ 初期化
+        //==================================================
+        private void InitializeGame()
         {
-            Fade(true, fade_material);
-            await Wait(3000);
-            Reset_Game();
-            Fade(false);
+            timer = sceneTime;
+
+            coins = FindObjectsByType<TarggerCoinScripts>(FindObjectsSortMode.None);
+            gimmicks = FindObjectsByType<GimmickBase>(FindObjectsSortMode.None);
+
+            maxCoinCount = coins.Length;
+            coinCount = 0;
+            score = 0;
+
+            foreach (var coin in coins)
+                coin.OnStart(this);
+
+            foreach (var gimmick in gimmicks)
+                gimmick.OnStart();
         }
 
-        /// <summary>
-        /// ゴール関数
-        /// </summary>
-        public void GoalEvent() {
-            //Wait(2000).Forget();
+        //==================================================
+        // ■ タイマー
+        //==================================================
+        private void UpdateTimer()
+        {
+            if (!isTimerActive || isProcessing)
+                return;
+
+            timer -= Time.deltaTime;
+
+            if (timer <= 0f)
+            {
+                timer = 0f;
+                isTimerActive = false;
+                Debug.Log("タイマー終了");
+                return;
+            }
+
+            timerText.text = $"Time : {timer:0.0}";
+        }
+
+        //==================================================
+        // ■ ゲームフロー
+        //==================================================
+        private async UniTask StartGameFlow()
+        {
+            await UniTask.Delay(1000);
+            await FadeAsync(false);
+        }
+
+        public async UniTask PlayerDeath(Material fadeMaterial = null)
+        {
+            if (isProcessing)
+                return;
+
+            isProcessing = true;
+
+            await FadeAsync(true, fadeMaterial);
+            await UniTask.Delay(3000);
+
+            ResetGame();
+
+            await FadeAsync(false);
+
+            timer -= 15;
+
+            isProcessing = false;
+        }
+
+        public void GoalEvent()
+        {
+            if (isProcessing)
+                return;
+
+            GoalFlow().Forget();
+        }
+
+        private async UniTask GoalFlow()
+        {
+            isProcessing = true;
+
             Debug.Log("Goal！！！！！！！");
 
-            //  ゴール時の遷移処理を書く
+            await UniTask.Delay(2000);
+
+            await FadeAsync(true);
+
+            ResetGame();
+
+            await FadeAsync(false);
+
+            isProcessing = false;
         }
 
-        /// <summary>
-        /// 時間遅延関数
-        /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        async UniTask Wait(int value)
+        //==================================================
+        // ■ リセット
+        //==================================================
+        private void ResetGame()
         {
-            await UniTask.Delay(value);
-            Debug.Log("End Wait");
+            Debug.Log("GameReset");
+
+            score = 0;
+            //foreach (var coin in coins)
+            //    coin.OnReset();
+
+            foreach (var gimmick in gimmicks)
+                gimmick.OnReset();
+
+            timer = sceneTime;
+            isTimerActive = true;
         }
 
-        /// <summary>
-        /// コイン取得関数
-        /// </summary>
-        public void GetCoin() {
+        //==================================================
+        // ■ コイン・スコア
+        //==================================================
+        public void GetCoin()
+        {
             coinCount++;
         }
 
-        /// <summary>
-        /// スコアアップ関数    (コイン以外も含む)
-        /// </summary>
-        /// <param name="value"></param>
         public void ScoreUp(int value)
         {
-            Score_ += value;
-            Debug.Log(Score_);
+            score += value;
         }
 
-        /// <summary>
-        /// 一連のFadeアクション用意関数
-        /// </summary>
-        /// <param name="fade_material"></param>
-        /// <returns></returns>
-        public async UniTask CallFade(Material fade_material = null)
+        //==================================================
+        // ■ Fade
+        //==================================================
+        private async UniTask FadeAsync(bool fadeIn, Material material = null)
         {
-            Fade(true, fade_material);
-            await Wait(3000);
-            Reset_Game();
-            Fade(false);
-        }
+            if (material != null)
+                fadeObj.SetFadeMaterial(material);
 
-        /// <summary>
-        /// Fade制御関数
-        /// </summary>
-        /// <param name="fade"></param>
-        /// <param name="fade_material"></param>
-        void Fade(bool fade, Material fade_material = null)
-        {
-            if (fade_material != null)
-            {
-                fade_obj.SetFadeMaterial(fade_material);
-            }
-            fade_obj.FadeImage(fade);
-            //ここでプレイヤーの操作を変更する処理を書く
+            fadeObj.FadeImage(fadeIn);
+
+            await UniTask.Delay(3000);
         }
     }
-
 }
