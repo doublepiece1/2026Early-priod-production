@@ -8777,7 +8777,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Kounosuke.GameSceneMoveCamera
   main_camera: {fileID: 1371922089}
-  camera_offset: 2
+  camera_offsetx: 3
+  camera_offsety: 3
   target_: {fileID: 790352748}
 --- !u!114 &1371922091
 MonoBehaviour:
