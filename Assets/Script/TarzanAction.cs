@@ -239,7 +239,7 @@ public class TarzanAction : GimmickBase
             return;
         }
 
-        if (grappleReleased || jumpPressed)
+        if (grappleReleased)
             StopGrapple();
     }
 
