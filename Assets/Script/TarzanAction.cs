@@ -1,6 +1,8 @@
+using Kounosuke;
+using System.Collections;
+using Unity.AppUI.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Kounosuke;
 
 public class TarzanAction : GimmickBase
 {
@@ -27,6 +29,8 @@ public class TarzanAction : GimmickBase
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float jumpPower = 8f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float knockBackX = 8f;
+    [SerializeField] private float knockBackY = 5f;
 
     //==================================================
     // ■ コンポーネント
@@ -50,6 +54,7 @@ public class TarzanAction : GimmickBase
     private bool jumpPressed;
     private bool grapplePressed;
     private bool grappleReleased;
+    private bool airMoved;
 
     //==================================================
     // ■ 状態
@@ -126,6 +131,14 @@ public class TarzanAction : GimmickBase
                 GroundMove();
 
                 break;
+
+            case State.Airborne:
+
+                if (airMoved)
+                {
+                    GroundMove();
+                }
+                break;
         }
     }
 
@@ -194,8 +207,10 @@ public class TarzanAction : GimmickBase
         if (grapplePressed)
             StartRopeShot();
 
-        if (IsGrounded())
+        if (IsGrounded()) { 
             state = State.Grounded;
+            airMoved = true;
+        }
     }
 
     private void UpdateShooting()
@@ -298,6 +313,7 @@ public class TarzanAction : GimmickBase
         pendulum.Begin(grapplePoint);
 
         state = State.Grappling;
+        airMoved = false;
 
         if (trail != null)
         {
@@ -461,16 +477,50 @@ public class TarzanAction : GimmickBase
 
     private bool IsGrounded()
     {
-        return Physics2D.Raycast(
+        var ans = Physics2D.Raycast(
             rb.position,
             Vector2.down,
             0.4f,
             groundLayer);
+
+        var lans = Physics2D.Raycast(
+            new Vector2(rb.position.x - 0.5f, rb.position.y),
+            Vector2.down,
+            0.4f,
+            groundLayer);
+        var rans = Physics2D.Raycast(
+            new Vector2(rb.position.x + 0.5f, rb.position.y),
+            Vector2.down,
+            0.4f,
+            groundLayer);
+
+        return (ans || lans || rans);
     }
 
     //==================================================
-    // ■ 死亡
+    // ■ ダメージ
     //==================================================
+
+    public void NockBack(float vec)
+    {
+        ReleaseRope();
+
+        rb.linearVelocity = new Vector2(
+            vec * knockBackX,
+            knockBackY);
+
+        HitStop(0.3f);
+        state = State.Airborne;
+    }
+
+    private IEnumerator HitStop(float duration)
+    {
+        Time.timeScale = 0.05f;
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        Time.timeScale = 1f;
+    }
 
     public void Die()
     {

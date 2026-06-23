@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Kounosuke
@@ -59,6 +60,8 @@ namespace Kounosuke
 
             if (collision.gameObject.CompareTag("Enemy"))
             {
+                var vec = transform.position - collision.gameObject.transform.position;
+                NockBack(vec.x);
                 TakeDamage(1);
             }
         }
@@ -77,6 +80,10 @@ namespace Kounosuke
             }
 
             InvincibleRoutine().Forget();
+        }
+        private void NockBack(float vecx)
+        {
+            tarzan?.NockBack(vecx);
         }
 
         private async UniTaskVoid InvincibleRoutine()
