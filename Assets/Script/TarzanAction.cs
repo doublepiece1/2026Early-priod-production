@@ -262,12 +262,14 @@ public class TarzanAction : GimmickBase
             moveInput.x *
             moveSpeed;
 
+        var speed = state != State.Airborne ? 10 : 5;
+
         rb.linearVelocity =
             new Vector2(
                 Mathf.Lerp(
                     rb.linearVelocity.x,
                     target,
-                    10f * Time.fixedDeltaTime),
+                    speed * Time.fixedDeltaTime),
                 rb.linearVelocity.y);
     }
 
