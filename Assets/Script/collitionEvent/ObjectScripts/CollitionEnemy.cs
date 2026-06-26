@@ -32,6 +32,8 @@ namespace Kounosuke
             isDead = false;
             transform.position = startPos;
             rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
+            transform.rotation = Quaternion.identity;
 
             rb.bodyType = RigidbodyType2D.Kinematic;
             col.enabled = true;
@@ -89,6 +91,7 @@ namespace Kounosuke
             yield return new WaitForSeconds(3f);
             Body.SetActive(false);
             rb.linearVelocity = Vector2.zero;
+            rb.angularVelocity = 0f;
         }
     }
 }

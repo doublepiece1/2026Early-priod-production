@@ -4,31 +4,33 @@ namespace Kounosuke {
     {
         [SerializeField, Header("メインカメラ")] private Camera main_camera;
         [SerializeField, Header("X軸オフセット")] private float camera_offsetx = 3;
-        [SerializeField, Header("Y軸オフセット")] private float camera_offsety = 3; 
+        [SerializeField, Header("Y軸オフセット")] private Vector2 camera_offsety = new Vector2(3, 3);
         [SerializeField, Header("追従ターゲット")] private GameObject target_;
 
         void Update()
         {
             float lengthX = target_.transform.position.x - main_camera.transform.position.x;
             float abs_lengthX = Mathf.Abs(lengthX);
-           
+
+            var move_vec = new Vector3();
             if (abs_lengthX > camera_offsetx)
             {
                 float f = lengthX > 0 ? 1 : -1;
-                var move_vec = new Vector3((abs_lengthX - camera_offsetx) * f,0,0);
-                transform.Translate(move_vec);
+                move_vec += new Vector3((abs_lengthX - camera_offsetx) * f,0,0);
             }
 
-            float legthY = target_.transform.position.y -main_camera.transform.position.y;
-            float abs_lengthY = Mathf.Abs(legthY);
+            float lengthY = target_.transform.position.y -main_camera.transform.position.y;
 
-            if (abs_lengthY > camera_offsety)
+            if (lengthY > camera_offsety.x)
             {
-                float f = legthY > 0 ? 1 :-1;
-                var move_vec = new Vector3(0, (abs_lengthY - camera_offsety) * f, 0);
-                transform.Translate(move_vec);
+                move_vec.y += lengthY - camera_offsety.x;
             }
-            
+            else if (lengthY < -camera_offsety.y)
+            {
+                move_vec.y += lengthY + camera_offsety.y;
+            }
+
+            transform.position = Vector3.Lerp(transform.position, transform.position + move_vec, 5f * Time.deltaTime);
         }
     }
 }
