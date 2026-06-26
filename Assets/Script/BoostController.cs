@@ -29,9 +29,13 @@ namespace Kounosuke
 
         [Tooltip("–³“G")]public bool IsInvincible { get; private set; }
 
+        PlayerRespon PlayerRespon;
+        private Coroutine invincibleCoroutine;
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
+            PlayerRespon = GetComponent<PlayerRespon>();
 
             chargeEffect =
                 chargeEffectBehaviour as IEffect;
@@ -94,8 +98,38 @@ namespace Kounosuke
                 dir * releaseBoost * 3f,
                 ForceMode2D.Impulse);
 
-            StartCoroutine(
-                InvincibleRoutine());
+            if (invincibleCoroutine != null)
+            {
+                StopCoroutine(invincibleCoroutine);
+            }
+
+            invincibleCoroutine = StartCoroutine(InvincibleRoutine());
+        }
+
+        public void AddBoost()
+        {
+            Vector2 dir =rb.linearVelocity.normalized;
+
+            if (dir == Vector2.zero)
+                dir = Vector2.right;
+
+            rb.linearVelocity = Vector2.zero;
+
+            if (boostBurstEffect)
+            {
+                boostBurstEffect.Play();
+            }
+
+            rb.AddForce(
+                dir * releaseBoost * 3f,
+                ForceMode2D.Impulse);
+
+            if (invincibleCoroutine != null)
+            {
+                StopCoroutine(invincibleCoroutine);
+            }
+
+            invincibleCoroutine = StartCoroutine(InvincibleRoutine());
         }
 
         private void ApplyReleaseBoost()
@@ -120,12 +154,16 @@ namespace Kounosuke
         private IEnumerator InvincibleRoutine()
         {
             IsInvincible = true;
+            
+            PlayerRespon.isInvincible = true;
 
             yield return
                 new WaitForSeconds(
                     invincibleTime);
 
             IsInvincible = false;
+            PlayerRespon.isInvincible = false;
+            invincibleCoroutine = null;
         }
     }
 }

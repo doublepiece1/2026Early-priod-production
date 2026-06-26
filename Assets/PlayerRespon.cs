@@ -10,13 +10,15 @@ namespace Kounosuke
         [SerializeField, Tooltip("Hp")] private int Hp = 0;
         [SerializeField, Tooltip("MaxHp")] private int MaxHp = 0;
         [SerializeField] private float invincibleTime = 1.0f;
-        private bool isInvincible = false;
+        public bool isInvincible = false;
 
 
         private Vector3 startPosition;
         private TarzanAction tarzan;
+        private BoostController boostController;
         private void Awake() {
             tarzan = GetComponent<TarzanAction>();
+            boostController = GetComponent<BoostController>();
         }
 
         /// <summary>
@@ -45,21 +47,25 @@ namespace Kounosuke
             Hp = hp;
         }
 
-        private void OnCollisionEnter2D(Collision2D collision)
+        private void OnTriggerEnter2D(Collider2D collision)
         {
             if (collision.gameObject.CompareTag("DeadZone"))
             {
                 Rigidbody2D rb = GetComponent<Rigidbody2D>();
-                if (rb != null) {
+                if (rb != null)
+                {
                     rb.linearVelocity = Vector2.zero;
                     rb.angularVelocity = 0f;
                 }
-
                 tarzan?.Die();
             }
-
             if (collision.gameObject.CompareTag("Enemy"))
             {
+                if (isInvincible)
+                {
+                    boostController.AddBoost();
+                    return;
+                }
                 var vec = transform.position - collision.gameObject.transform.position;
                 NockBack(vec.x);
                 TakeDamage(1);
@@ -68,8 +74,6 @@ namespace Kounosuke
 
         private void TakeDamage(int damage)
         {
-            if (isInvincible) return;
-
             Hp -= damage;
 
             if (Hp <= 0)
