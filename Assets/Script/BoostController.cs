@@ -14,6 +14,7 @@ namespace Kounosuke
         [SerializeField] private ParticleSystem boostReadyEffect;
         [SerializeField] private ParticleSystem boostBurstEffect;
         [SerializeField] private ChargeEffectController chargeEffectBehaviour;
+        [SerializeField] private TrailRenderer trail;
 
         [SerializeField] private float speedScale = 10f;
 
@@ -39,11 +40,16 @@ namespace Kounosuke
 
             chargeEffect =
                 chargeEffectBehaviour as IEffect;
+            if (trail != null)
+                trail.emitting = false;
         }
         public void Charge(float speed)
         {
             if (IsReady)
+            { 
                 return;
+            }
+                
 
             CurrentSpeed = speed;
 
@@ -62,8 +68,6 @@ namespace Kounosuke
                 boostGauge = boostMax;
                 IsReady = true;
             }
-
-
         }
 
         public void Release()
@@ -104,6 +108,11 @@ namespace Kounosuke
             }
 
             invincibleCoroutine = StartCoroutine(InvincibleRoutine());
+            if (trail != null)
+            {
+                trail.Clear();
+                //trail.emitting = true;
+            }
         }
 
         public void AddBoost()
@@ -164,6 +173,11 @@ namespace Kounosuke
             IsInvincible = false;
             PlayerRespon.isInvincible = false;
             invincibleCoroutine = null;
+
+            if (trail != null)
+            {
+                trail.emitting = false;
+            }
         }
     }
 }

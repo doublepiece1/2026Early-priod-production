@@ -40,7 +40,6 @@ public class TarzanAction : GimmickBase
     [SerializeField] private PendulumController pendulum;
     [SerializeField] private BoostController boost;
     [SerializeField] private GrappleRopeRenderer ropeRenderer;
-    [SerializeField] private TrailRenderer trail;
 
     private Rigidbody2D rb;
     private PlayerInput input;
@@ -88,9 +87,6 @@ public class TarzanAction : GimmickBase
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<PlayerInput>();
         mainCamera = Camera.main;
-
-        if (trail != null)
-            trail.emitting = false;
     }
 
     public override void OnReset()
@@ -317,11 +313,7 @@ public class TarzanAction : GimmickBase
         state = State.Grappling;
         airMoved = false;
 
-        if (trail != null)
-        {
-            trail.Clear();
-            //trail.emitting = true;
-        }
+        
     }
 
     private void StopGrapple()
@@ -341,11 +333,6 @@ public class TarzanAction : GimmickBase
             IsGrounded()
             ? State.Grounded
             : State.Airborne;
-
-        if (trail != null)
-        {
-            //   trail.emitting = false;
-        }
     }
 
     //==================================================

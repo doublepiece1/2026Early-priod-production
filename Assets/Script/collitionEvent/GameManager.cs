@@ -112,7 +112,7 @@ namespace Kounosuke
             isProcessing = true;
 
             await FadeAsync(true, fadeMaterial);
-            await UniTask.Delay(3000);
+            await UniTask.Delay(1000);
 
             ResetGame();
 

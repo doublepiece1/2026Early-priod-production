@@ -1,7 +1,5 @@
 using DG.Tweening;
-using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 using Sequence = DG.Tweening.Sequence;
 
 namespace Kounosuke
@@ -83,6 +81,7 @@ namespace Kounosuke
             transform.position = start_pos;
             this.gameObject.SetActive(true);
             moveSequence?.Kill();
+            is_sequence_playing = false;
         }
     }
 }

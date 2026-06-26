@@ -5,6 +5,7 @@ namespace Kounosuke {
         [SerializeField, Header("メインカメラ")] private Camera main_camera;
         [SerializeField, Header("X軸オフセット")] private float camera_offsetx = 3;
         [SerializeField, Header("Y軸オフセット")] private Vector2 camera_offsety = new Vector2(3, 3);
+        [SerializeField, Header("最低値")] private float min_y = -2f;
         [SerializeField, Header("追従ターゲット")] private GameObject target_;
 
         void Update()
@@ -30,7 +31,10 @@ namespace Kounosuke {
                 move_vec.y += lengthY + camera_offsety.y;
             }
 
-            transform.position = Vector3.Lerp(transform.position, transform.position + move_vec, 5f * Time.deltaTime);
+            Vector3 nextPos = Vector3.Lerp(transform.position, transform.position + move_vec, 5f * Time.deltaTime);
+            nextPos.y = Mathf.Max(nextPos.y, min_y);
+
+            transform.position = nextPos;
         }
     }
 }

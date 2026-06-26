@@ -47,7 +47,8 @@ namespace Kounosuke
             Hp = hp;
         }
 
-        private void OnTriggerEnter2D(Collider2D collision)
+
+        private void OnCollisionEnter2D(Collision2D collision)
         {
             if (collision.gameObject.CompareTag("DeadZone"))
             {
@@ -59,6 +60,11 @@ namespace Kounosuke
                 }
                 tarzan?.Die();
             }
+        }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            
             if (collision.gameObject.CompareTag("Enemy"))
             {
                 if (isInvincible)
