@@ -19,9 +19,8 @@ namespace Kounosuke
         // ■ タイマー
         //==================================================
         [Header("ゲームタイマー")]
-        [SerializeField] private float timer;
+        public float timer {  get;private set; }
         [SerializeField] private float sceneTime;
-        [SerializeField] private TextMeshProUGUI timerText;
 
         private bool isTimerActive = true;
 
@@ -91,8 +90,6 @@ namespace Kounosuke
                 Debug.Log("タイマー終了");
                 return;
             }
-
-            timerText.text = $"Time : {timer:0.0}";
         }
 
         //==================================================

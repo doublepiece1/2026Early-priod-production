@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 namespace Kounosuke
@@ -7,15 +6,15 @@ namespace Kounosuke
     public class PlayerRespon : GimmickBase
     {
         [Header("プレイヤーHp設定")]
-        [SerializeField, Tooltip("Hp")] private int Hp = 0;
-        [SerializeField, Tooltip("MaxHp")] private int MaxHp = 0;
+        [Tooltip("Hp")] public int Hp { get; private set; } = 0;
+        [SerializeField, Tooltip("MaxHp")] private int MaxHp = 3;
         [SerializeField] private float invincibleTime = 1.0f;
         public bool isInvincible = false;
-
 
         private Vector3 startPosition;
         private TarzanAction tarzan;
         private BoostController boostController;
+
         private void Awake() {
             tarzan = GetComponent<TarzanAction>();
             boostController = GetComponent<BoostController>();
@@ -27,8 +26,12 @@ namespace Kounosuke
         public void SetPos() {
             startPosition = transform.position;
         }
-        void Start() {
+
+        public override void OnStart()
+        {
+            base.OnStart();
             SetPos();
+            SetHp(MaxHp);
         }
 
         /// <summary>
@@ -46,7 +49,6 @@ namespace Kounosuke
         {
             Hp = hp;
         }
-
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
