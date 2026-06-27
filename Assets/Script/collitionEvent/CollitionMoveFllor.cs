@@ -1,5 +1,7 @@
 using DG.Tweening;
+using Unity.VisualScripting;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 using Sequence = DG.Tweening.Sequence;
 
 namespace Kounosuke
@@ -13,7 +15,7 @@ namespace Kounosuke
         private Vector3 start_pos;
 
         private Sequence moveSequence;
-        bool is_sequence_playing = false;
+
         /// <summary>
         /// ギミックスタート関数
         /// </summary>
@@ -28,12 +30,10 @@ namespace Kounosuke
             if (!collision.gameObject.CompareTag("Player")) {
                 return;
             }
-            if(is_sequence_playing)
-            {
-                return;
-            }
+
             ContactPoint2D contact = collision.GetContact(0);
-            if (contact.normal.y < 0.1f) {
+
+            if (contact.normal.y < 0.5f)  {
                 Debug.Log("Player Collision Up");
                 MoveAction();
             }
@@ -47,7 +47,6 @@ namespace Kounosuke
             if (Move_Points == null || Move_Points.Length == 0) {
                 return;
             }
-            is_sequence_playing = true;
             moveSequence = DOTween.Sequence();
 
             //ポイント追加
@@ -81,7 +80,6 @@ namespace Kounosuke
             transform.position = start_pos;
             this.gameObject.SetActive(true);
             moveSequence?.Kill();
-            is_sequence_playing = false;
         }
     }
 }

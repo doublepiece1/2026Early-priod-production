@@ -14,7 +14,6 @@ namespace Kounosuke
         [SerializeField] private ParticleSystem boostReadyEffect;
         [SerializeField] private ParticleSystem boostBurstEffect;
         [SerializeField] private ChargeEffectController chargeEffectBehaviour;
-        [SerializeField] private TrailRenderer trail;
 
         [SerializeField] private float speedScale = 10f;
 
@@ -27,29 +26,19 @@ namespace Kounosuke
         private float boostGauge;
 
         public bool IsReady { get; private set; }
-
-        [Tooltip("–³“G")]public bool IsInvincible { get; private set; }
-
-        PlayerRespon PlayerRespon;
-        private Coroutine invincibleCoroutine;
+        public bool IsInvincible { get; private set; }
 
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
-            PlayerRespon = GetComponent<PlayerRespon>();
 
             chargeEffect =
                 chargeEffectBehaviour as IEffect;
-            if (trail != null)
-                trail.emitting = false;
         }
         public void Charge(float speed)
         {
             if (IsReady)
-            { 
                 return;
-            }
-                
 
             CurrentSpeed = speed;
 
@@ -68,6 +57,8 @@ namespace Kounosuke
                 boostGauge = boostMax;
                 IsReady = true;
             }
+
+
         }
 
         public void Release()
@@ -102,43 +93,8 @@ namespace Kounosuke
                 dir * releaseBoost * 3f,
                 ForceMode2D.Impulse);
 
-            if (invincibleCoroutine != null)
-            {
-                StopCoroutine(invincibleCoroutine);
-            }
-
-            invincibleCoroutine = StartCoroutine(InvincibleRoutine());
-            if (trail != null)
-            {
-                trail.Clear();
-                //trail.emitting = true;
-            }
-        }
-
-        public void AddBoost()
-        {
-            Vector2 dir =rb.linearVelocity.normalized;
-
-            if (dir == Vector2.zero)
-                dir = Vector2.right;
-
-            rb.linearVelocity = Vector2.zero;
-
-            if (boostBurstEffect)
-            {
-                boostBurstEffect.Play();
-            }
-
-            rb.AddForce(
-                dir * releaseBoost * 3f,
-                ForceMode2D.Impulse);
-
-            if (invincibleCoroutine != null)
-            {
-                StopCoroutine(invincibleCoroutine);
-            }
-
-            invincibleCoroutine = StartCoroutine(InvincibleRoutine());
+            StartCoroutine(
+                InvincibleRoutine());
         }
 
         private void ApplyReleaseBoost()
@@ -152,7 +108,7 @@ namespace Kounosuke
                 ForceMode2D.Impulse);
         }
 
-        public void ResetBoost()
+        private void ResetBoost()
         {
             boostGauge = 0f;
             IsReady = false;
@@ -163,21 +119,12 @@ namespace Kounosuke
         private IEnumerator InvincibleRoutine()
         {
             IsInvincible = true;
-            
-            PlayerRespon.isInvincible = true;
 
             yield return
                 new WaitForSeconds(
                     invincibleTime);
 
             IsInvincible = false;
-            PlayerRespon.isInvincible = false;
-            invincibleCoroutine = null;
-
-            if (trail != null)
-            {
-                trail.emitting = false;
-            }
         }
     }
 }

@@ -1,24 +1,19 @@
 using Kounosuke;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class GoalTrigger : GimmickBase
+public class GoalTrigger : MonoBehaviour
 {
 
     [SerializeField] private GameObject clearImage;
 
-    public override void OnStart()
+
+    private void Start()
     {
-        base.OnStart();
         clearImage.SetActive(false);
     }
-
-    public override void OnReset()
-    {
-        base.OnReset();
-        clearImage.SetActive(false);
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == ("Player"))
         {
