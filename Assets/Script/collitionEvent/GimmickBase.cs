@@ -7,6 +7,8 @@ namespace Kounosuke
     public interface GimmickInterface : IEventSystemHandler {
         void OnStart();
         void OnReset();
+
+        void OnGoalEvent();
     }
 
     //ゲームシーンギミック基底関数
@@ -17,6 +19,10 @@ namespace Kounosuke
 
         }
         public virtual void OnReset()
+        {
+
+        }
+        public virtual void OnGoalEvent()
         {
 
         }

@@ -1,8 +1,10 @@
+using Kounosuke;
+using System.Collections;
+using Unity.AppUI.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Kounosuke;
 
-public class TarzanAction : MonoBehaviour
+public class TarzanAction : GimmickBase
 {
     //==================================================
     // ■ グラップル設定
@@ -27,6 +29,8 @@ public class TarzanAction : MonoBehaviour
     [SerializeField] private float moveSpeed = 6f;
     [SerializeField] private float jumpPower = 8f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private float knockBackX = 8f;
+    [SerializeField] private float knockBackY = 5f;
 
     //==================================================
     // ■ コンポーネント
@@ -36,7 +40,6 @@ public class TarzanAction : MonoBehaviour
     [SerializeField] private PendulumController pendulum;
     [SerializeField] private BoostController boost;
     [SerializeField] private GrappleRopeRenderer ropeRenderer;
-    [SerializeField] private TrailRenderer trail;
 
     private Rigidbody2D rb;
     private PlayerInput input;
@@ -50,6 +53,7 @@ public class TarzanAction : MonoBehaviour
     private bool jumpPressed;
     private bool grapplePressed;
     private bool grappleReleased;
+    private bool airMoved;
 
     //==================================================
     // ■ 状態
@@ -61,7 +65,8 @@ public class TarzanAction : MonoBehaviour
         Airborne,
         Shooting,
         Grappling,
-        Dead
+        Dead,
+        Goal
     }
 
     private State state = State.Grounded;
@@ -83,10 +88,18 @@ public class TarzanAction : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<PlayerInput>();
         mainCamera = Camera.main;
-
-        if (trail != null)
-            trail.emitting = false;
     }
+
+    public override void OnReset()
+    {
+        boost.ResetBoost();
+    }
+
+    public override void OnGoalEvent()
+    {
+        base.OnGoalEvent();
+        state = State.Goal;
+    }   
 
     private void Update()
     {
@@ -120,6 +133,18 @@ public class TarzanAction : MonoBehaviour
 
                 GroundMove();
 
+                break;
+
+            case State.Airborne:
+
+                if (airMoved)
+                {
+                    GroundMove();
+                }
+                break;
+            case State.Dead:
+                break;
+            case State.Goal:
                 break;
         }
     }
@@ -189,8 +214,10 @@ public class TarzanAction : MonoBehaviour
         if (grapplePressed)
             StartRopeShot();
 
-        if (IsGrounded())
+        if (IsGrounded()) { 
             state = State.Grounded;
+            airMoved = true;
+        }
     }
 
     private void UpdateShooting()
@@ -219,7 +246,7 @@ public class TarzanAction : MonoBehaviour
             return;
         }
 
-        if (grappleReleased || jumpPressed)
+        if (grappleReleased)
             StopGrapple();
     }
 
@@ -242,12 +269,14 @@ public class TarzanAction : MonoBehaviour
             moveInput.x *
             moveSpeed;
 
+        var speed = state != State.Airborne ? 10 : 5;
+
         rb.linearVelocity =
             new Vector2(
                 Mathf.Lerp(
                     rb.linearVelocity.x,
                     target,
-                    10f * Time.fixedDeltaTime),
+                    speed * Time.fixedDeltaTime),
                 rb.linearVelocity.y);
     }
 
@@ -293,12 +322,9 @@ public class TarzanAction : MonoBehaviour
         pendulum.Begin(grapplePoint);
 
         state = State.Grappling;
+        airMoved = false;
 
-        if (trail != null)
-        {
-            trail.Clear();
-            //trail.emitting = true;
-        }
+        
     }
 
     private void StopGrapple()
@@ -318,11 +344,6 @@ public class TarzanAction : MonoBehaviour
             IsGrounded()
             ? State.Grounded
             : State.Airborne;
-
-        if (trail != null)
-        {
-            //   trail.emitting = false;
-        }
     }
 
     //==================================================
@@ -456,16 +477,50 @@ public class TarzanAction : MonoBehaviour
 
     private bool IsGrounded()
     {
-        return Physics2D.Raycast(
+        var ans = Physics2D.Raycast(
             rb.position,
             Vector2.down,
             0.4f,
             groundLayer);
+
+        var lans = Physics2D.Raycast(
+            new Vector2(rb.position.x - 0.5f, rb.position.y),
+            Vector2.down,
+            0.4f,
+            groundLayer);
+        var rans = Physics2D.Raycast(
+            new Vector2(rb.position.x + 0.5f, rb.position.y),
+            Vector2.down,
+            0.4f,
+            groundLayer);
+
+        return (ans || lans || rans);
     }
 
     //==================================================
-    // ■ 死亡
+    // ■ ダメージ
     //==================================================
+
+    public void NockBack(float vec)
+    {
+        ReleaseRope();
+
+        rb.linearVelocity = new Vector2(
+            vec * knockBackX,
+            knockBackY);
+
+        HitStop(0.3f);
+        state = State.Airborne;
+    }
+
+    private IEnumerator HitStop(float duration)
+    {
+        Time.timeScale = 0.05f;
+
+        yield return new WaitForSecondsRealtime(duration);
+
+        Time.timeScale = 1f;
+    }
 
     public void Die()
     {
