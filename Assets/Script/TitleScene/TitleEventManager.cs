@@ -21,6 +21,9 @@ public class TitleEventManager : MonoBehaviour
     private bool isActiveSubCanvas_ = false;
     private InputDevice inputDevice_;
 
+    [SerializeField] private AudioClip BGM;
+    [SerializeField] private AudioClip SE;
+
     private void OnEnable()
     {
         InputActions_ = new PlayerInputActions();
@@ -35,6 +38,7 @@ public class TitleEventManager : MonoBehaviour
         if (subCanvas_ != null) {
             subCanvas_.SetActive(isActiveSubCanvas_);
         }
+        AudioManager.Instance().PlayBGM(BGM);
     }
 
     public void ActiveMainCanvas()
@@ -95,6 +99,7 @@ public class TitleEventManager : MonoBehaviour
     public void OnStartButton(string str)
     {
         Load(str).Forget();
+        AudioManager.Instance().PlaySE(SE);
     }
 
     public async UniTask Load(string str)

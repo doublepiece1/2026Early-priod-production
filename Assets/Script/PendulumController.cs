@@ -35,6 +35,13 @@ namespace Kounosuke
         public float RopeLength => ropeLength;
         public float Speed => rb.linearVelocity.magnitude;
 
+        [SerializeField]
+        private float seMinSpeed = 5f;
+
+        public System.Action OnHalfTurn;
+        private float seCooldown;
+        [SerializeField] private float seCooldownTime = 0.3f;
+
         private void Awake()
         {
             rb = GetComponent<Rigidbody2D>();
@@ -67,6 +74,8 @@ namespace Kounosuke
                     rb.linearVelocity,
                     tangent)
                 / ropeLength;
+
+            angle = Mathf.Atan2(offset.x, -offset.y);
         }
 
         public void Tick(Vector2 moveInput)
@@ -126,6 +135,13 @@ namespace Kounosuke
             angleVelocity +=
                 accel *
                 Time.fixedDeltaTime;
+
+            seCooldown -= Time.fixedDeltaTime;
+
+            if (Mathf.Abs(angle) < 0.2f && Speed >= seMinSpeed && seCooldown<0)
+            {
+                OnHalfTurn?.Invoke();
+            }
 
             angleVelocity *=
                 1f -

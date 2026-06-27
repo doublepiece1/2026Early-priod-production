@@ -29,7 +29,7 @@ namespace Kounosuke
         //==================================================
         [Header("ÉQÅ[ÉÄââèo")]
         [SerializeField] private Fade fadeObj;
-
+        [SerializeField] private AudioClip BGM;
         private bool isProcessing = false;
 
         //==================================================
@@ -71,6 +71,8 @@ namespace Kounosuke
 
             foreach (var gimmick in gimmicks)
                 gimmick.OnStart();
+
+            AudioManager.Instance().PlayBGM(BGM);
         }
 
         //==================================================

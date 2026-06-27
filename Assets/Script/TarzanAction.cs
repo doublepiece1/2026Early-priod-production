@@ -16,6 +16,7 @@ public class TarzanAction : GimmickBase
     [SerializeField] private float ropeShotSpeed = 60f;
     [SerializeField] private float coolTime = 0.5f;
     private float grappleCooldownTimer;
+    
 
     [Header("Gamepad Aim Assist")]
     [SerializeField] private float aimAssistRadius = 0.5f;
@@ -44,6 +45,13 @@ public class TarzanAction : GimmickBase
     private Rigidbody2D rb;
     private PlayerInput input;
     private Camera mainCamera;
+
+    //==================================================
+    //  ■ SE
+    //==================================================
+
+    [SerializeField] private AudioClip grappleSE;
+    [SerializeField] private AudioClip jumpSE;
 
     //==================================================
     // ■ 入力
@@ -88,8 +96,19 @@ public class TarzanAction : GimmickBase
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<PlayerInput>();
         mainCamera = Camera.main;
+        pendulum.OnHalfTurn += PlayGrappleSE;
     }
 
+    private void OnDestroy()
+    {
+        if (pendulum != null)
+            pendulum.OnHalfTurn -= PlayGrappleSE;
+    }
+
+    private void PlayGrappleSE()
+    {
+        AudioManager.Instance().PlaySE(grappleSE);
+    }
     public override void OnReset()
     {
         boost.ResetBoost();
@@ -291,6 +310,8 @@ public class TarzanAction : GimmickBase
                 jumpPower);
 
         state = State.Airborne;
+
+        AudioManager.Instance().PlaySE(jumpSE);
     }
 
     //==================================================
@@ -323,8 +344,6 @@ public class TarzanAction : GimmickBase
 
         state = State.Grappling;
         airMoved = false;
-
-        
     }
 
     private void StopGrapple()
