@@ -88,17 +88,6 @@
                 },
                 {
                     "name": "",
-                    "id": "edb7f0d6-410e-4472-b3db-a59ea6655b63",
-                    "path": "<Keyboard>/#(W)",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Jump",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "ab70c037-e177-4657-8dfe-785cb3dd4b82",
                     "path": "<Gamepad>/leftTrigger",
                     "interactions": "",
@@ -118,6 +107,17 @@
                     "action": "Move",
                     "isComposite": true,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "Up",
+                    "id": "25e4a024-63f7-45ed-9b8b-64a4e027bae6",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 },
                 {
                     "name": "down",
