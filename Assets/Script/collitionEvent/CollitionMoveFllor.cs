@@ -25,20 +25,26 @@ namespace Kounosuke
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
-            if (!collision.gameObject.CompareTag("Player")) {
-                return;
-            }
-            if(is_sequence_playing)
+            if (!collision.gameObject.CompareTag("Player"))
             {
                 return;
             }
-            ContactPoint2D contact = collision.GetContact(0);
-            if (contact.normal.y < 0.1f) {
-                Debug.Log("Player Collision Up");
-                MoveAction();
+            if (is_sequence_playing)
+            {
+                return;
+            }
+            foreach (var contact in collision.contacts)
+            {
+                Debug.Log(contact.normal);
+
+                if (Vector2.Dot(contact.normal, Vector2.down) > 0.8f)
+                {
+                    Debug.Log("Player Collision Up");
+                    MoveAction();
+                }
+
             }
         }
-
         /// <summary>
         /// à⁄ìÆñ{ëÃä÷êî
         /// </summary>

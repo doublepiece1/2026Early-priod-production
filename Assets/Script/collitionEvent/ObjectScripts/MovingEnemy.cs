@@ -11,9 +11,9 @@ namespace Kounosuke
         private Sequence moveSequence;
         public override void OnStart()
         {
+            base.OnStart();
             moveSequence = DOTween.Sequence();
             var v2 = new Vector2(transform.position.x, transform.position.y);
-
             moveSequence.Append(rb.DOMove(v2 + TargetPoint, time).SetEase(Ease.Linear)).SetLoops(-1, LoopType.Yoyo);
         }
 

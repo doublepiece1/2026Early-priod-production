@@ -23,14 +23,14 @@ namespace Kounosuke
         /// <summary>
         /// 初期位置セット関数
         /// </summary>
-        public void SetPos() {
-            startPosition = transform.position;
+        public void SetPos(Transform pos) {
+            startPosition = pos.position;
         }
 
         public override void OnStart()
         {
             base.OnStart();
-            SetPos();
+            SetPos(transform);
             SetHp(MaxHp);
         }
 

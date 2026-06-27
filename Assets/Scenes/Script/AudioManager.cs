@@ -4,17 +4,16 @@ namespace Kounosuke
 {
     public class AudioManager : MonoBehaviour
     {
-        public static AudioManager Instance;
+        public static AudioManager instance;
 
         [Header("Audio Sources")]
         [SerializeField] private AudioSource bgmSource;
         [SerializeField] private AudioSource seSource;
-
         private void Awake()
         {
-            if (Instance == null)
+            if (instance == null)
             {
-                Instance = this;
+                instance = this;
                 DontDestroyOnLoad(gameObject);
             }
             else
@@ -23,6 +22,10 @@ namespace Kounosuke
             }
         }
 
+        public static AudioManager Instance()
+        {
+            return instance;
+        }
         public void PlayBGM(AudioClip clip, bool loop = true)
         {
             if (clip == null) return;
