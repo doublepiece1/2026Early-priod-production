@@ -15,15 +15,16 @@ namespace Kounosuke
         Vector3 startPos;
         Coroutine Coroutine;
 
-        private void Start()
+        protected void Start()
         {
-            rb = GetComponent<Rigidbody2D>();
-            col = GetComponent<Collider2D>();
-            startPos = transform.position;
+            
         }
         public override void OnStart()
         {
             base.OnStart();
+            rb = GetComponent<Rigidbody2D>();
+            col = GetComponent<Collider2D>();
+            startPos = transform.position;
         }
 
         public override void OnReset()

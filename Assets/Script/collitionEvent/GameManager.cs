@@ -87,7 +87,7 @@ namespace Kounosuke
             {
                 timer = 0f;
                 isTimerActive = false;
-                Debug.Log("タイマー終了");
+                
                 return;
             }
         }
@@ -97,6 +97,7 @@ namespace Kounosuke
         //==================================================
         private async UniTask StartGameFlow()
         {
+            Debug.Log("Start");
             await UniTask.Delay(1000);
             await FadeAsync(false);
         }
