@@ -33,7 +33,7 @@ namespace Kounosuke
                 return;
             }
             ContactPoint2D contact = collision.GetContact(0);
-            if (contact.normal.y < 0.3f) {
+            if (contact.normal.y < 0.1f) {
                 Debug.Log("Player Collision Up");
                 MoveAction();
             }

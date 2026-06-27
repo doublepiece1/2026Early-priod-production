@@ -135,17 +135,21 @@ namespace Kounosuke
         {
             isProcessing = true;
 
+            foreach (var gimmick in gimmicks)
+                gimmick.OnGoalEvent();
             Debug.Log("Goal！！！！！！！");
 
             await UniTask.Delay(2000);
 
             await FadeAsync(true);
 
-            ResetGame();
+            SceneFlowManager.Instance().MoveTitleScene();
 
-            await FadeAsync(false);
+            //ResetGame();
 
-            isProcessing = false;
+            //await FadeAsync(false);
+
+            //isProcessing = false;
         }
 
         //==================================================

@@ -65,7 +65,8 @@ public class TarzanAction : GimmickBase
         Airborne,
         Shooting,
         Grappling,
-        Dead
+        Dead,
+        Goal
     }
 
     private State state = State.Grounded;
@@ -93,6 +94,12 @@ public class TarzanAction : GimmickBase
     {
         boost.ResetBoost();
     }
+
+    public override void OnGoalEvent()
+    {
+        base.OnGoalEvent();
+        state = State.Goal;
+    }   
 
     private void Update()
     {
@@ -134,6 +141,10 @@ public class TarzanAction : GimmickBase
                 {
                     GroundMove();
                 }
+                break;
+            case State.Dead:
+                break;
+            case State.Goal:
                 break;
         }
     }
