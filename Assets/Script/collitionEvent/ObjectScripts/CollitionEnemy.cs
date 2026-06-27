@@ -10,7 +10,7 @@ namespace Kounosuke
         [SerializeField] private float blowPower = 10f;
         [SerializeField] private GameObject Body;
 
-        private Rigidbody2D rb;
+        protected Rigidbody2D rb;
         private Collider2D col;
         Vector3 startPos;
         Coroutine Coroutine;
@@ -46,6 +46,8 @@ namespace Kounosuke
             }
         }
 
+        
+
         /// <summary>
         /// è’ìÀéûèàóùä÷êî
         /// </summary>
@@ -67,6 +69,7 @@ namespace Kounosuke
                 {
                     if (boostController.IsInvincible)
                     {
+                        OnCollitionEvent();
                         isDead = true;
                         rb.linearVelocity = Vector2.zero;
 
@@ -84,6 +87,11 @@ namespace Kounosuke
                     }
                 }
             }
+        }
+
+        protected virtual void OnCollitionEvent()
+        {
+
         }
 
         IEnumerator wditdead()

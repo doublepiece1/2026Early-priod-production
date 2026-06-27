@@ -111,7 +111,7 @@ namespace Kounosuke
             if (trail != null)
             {
                 trail.Clear();
-                //trail.emitting = true;
+                trail.emitting = true;
             }
         }
 
