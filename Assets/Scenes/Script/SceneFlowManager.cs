@@ -43,10 +43,13 @@ namespace Kounosuke
         /// <summary>
         /// ゲームシーン移動関数
         /// </summary>
-        public void MoveGameScene() {
-            SceneManager.LoadScene("PracticeScene");
+        //public void MoveGameScene() {
+          //  SceneManager.LoadScene("PracticeScene");
+       // }
+        public void MoveGameScene() 
+        {
+            SceneManager.LoadScene("MAP1");
         }
-
         /// <summary>
         /// 選択シーン移動
         /// </summary>
