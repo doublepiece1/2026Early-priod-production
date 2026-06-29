@@ -6060,6 +6060,8 @@ MonoBehaviour:
   maxDistance: 20
   ropeShotSpeed: 60
   coolTime: 0.5
+  downwardLimit: 12
+  grappleCooldownTimer: 0
   aimAssistRadius: 0.5
   minStickInput: 0.2
   moveSpeed: 6
@@ -6309,6 +6311,7 @@ MonoBehaviour:
   ropeRetractBoost: 6.64
   inputVelocityDecay: 3
   seMinSpeed: 3
+  seCooldownTime: 0.3
 --- !u!1 &875805792
 GameObject:
   m_ObjectHideFlags: 0
