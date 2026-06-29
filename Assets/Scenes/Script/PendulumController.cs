@@ -141,5 +141,7 @@ namespace Kounosuke
             inputVelocity = 0f;
             retractVelocity = 0f;
         }
+
+        
     }
 }

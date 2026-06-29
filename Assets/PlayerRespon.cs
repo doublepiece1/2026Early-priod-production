@@ -63,6 +63,9 @@ namespace Kounosuke
                 }
                 tarzan?.Die();
             }
+            if (collision.gameObject.CompareTag("Ground")) {
+                tarzan?.CollitionWall();
+            }
         }
 
         private void OnTriggerEnter2D(Collider2D collision)

@@ -38,7 +38,7 @@ public class TitleEventManager : MonoBehaviour
         if (subCanvas_ != null) {
             subCanvas_.SetActive(isActiveSubCanvas_);
         }
-        AudioManager.Instance().PlayBGM(BGM);
+        AudioManager.Instance()?.PlayBGM(BGM);
     }
 
     public void ActiveMainCanvas()
@@ -99,7 +99,7 @@ public class TitleEventManager : MonoBehaviour
     public void OnStartButton(string str)
     {
         Load(str).Forget();
-        AudioManager.Instance().PlaySE(SE);
+        AudioManager.Instance()?.PlaySE(SE);
     }
 
     public async UniTask Load(string str)

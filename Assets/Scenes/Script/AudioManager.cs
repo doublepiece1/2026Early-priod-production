@@ -4,7 +4,7 @@ namespace Kounosuke
 {
     public class AudioManager : MonoBehaviour
     {
-        public static AudioManager instance;
+        private static AudioManager instance;
 
         [Header("Audio Sources")]
         [SerializeField] private AudioSource bgmSource;

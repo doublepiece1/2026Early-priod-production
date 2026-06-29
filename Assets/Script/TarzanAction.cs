@@ -18,7 +18,7 @@ public class TarzanAction : GimmickBase
     [SerializeField] private float coolTime = 0.5f;
     [SerializeField, Range(0f, 90f)] private float downwardLimit = 30f;
     [SerializeField] private float grappleCooldownTimer;
-
+    [SerializeField] private float collirionReleseSpeed;
 
     [Header("Gamepad Aim Assist")]
     [SerializeField] private float aimAssistRadius = 0.5f;
@@ -109,7 +109,7 @@ public class TarzanAction : GimmickBase
 
     private void PlayGrappleSE()
     {
-        AudioManager.Instance().PlaySE(grappleSE);
+        AudioManager.Instance()?.PlaySE(grappleSE);
     }
     public override void OnReset()
     {
@@ -289,7 +289,7 @@ public class TarzanAction : GimmickBase
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
         state = State.Airborne;
 
-        AudioManager.Instance().PlaySE(jumpSE);
+        AudioManager.Instance()?.PlaySE(jumpSE);
     }
 
     //==================================================
@@ -466,6 +466,13 @@ public class TarzanAction : GimmickBase
         yield return new WaitForSecondsRealtime(duration);
 
         Time.timeScale = 1f;
+    }
+
+    public void CollitionWall()
+    {
+        if (Mathf.Abs(rb.linearVelocity.magnitude) < collirionReleseSpeed) return;
+        boost?.ResetBoost();
+        state = IsGrounded() ? State.Grounded : State.Airborne;
     }
 
     public void Die()
