@@ -15,7 +15,8 @@ public class TarzanAction : GimmickBase
     [SerializeField] private float maxDistance = 3f;
     [SerializeField] private float ropeShotSpeed = 60f;
     [SerializeField] private float coolTime = 0.5f;
-    private float grappleCooldownTimer;
+    [SerializeField, Range(0f, 90f)] private float downwardLimit = 30f;
+    [SerializeField] private float grappleCooldownTimer;
     
 
     [Header("Gamepad Aim Assist")]
@@ -122,16 +123,14 @@ public class TarzanAction : GimmickBase
 
     private void Update()
     {
-        if (state == State.Dead)
-            return;
+        if (state == State.Dead) return;
 
-        if (grappleCooldownTimer > 0f)
+        if (grappleCooldownTimer > 0f) {
             grappleCooldownTimer -= Time.deltaTime;
-
+        }
+            
         ReadInput();
-
         UpdateState();
-
         UpdateRopeVisual();
     }
 
@@ -139,28 +138,22 @@ public class TarzanAction : GimmickBase
     {
         switch (state)
         {
-            case State.Grappling:
-
-                pendulum.Tick(moveInput);
-
-                boost.Charge(
-                    pendulum.Speed);
-
-                break;
-
-            case State.Grounded:
-
-                GroundMove();
-
-                break;
-
-            case State.Airborne:
-
-                if (airMoved)
-                {
-                    GroundMove();
+            case State.Grappling: {
+                    pendulum.Tick(moveInput);
+                    boost.Charge(pendulum.Speed);
+                    break;
                 }
-                break;
+            case State.Grounded: {
+                    GroundMove();
+                    break;
+                }
+            case State.Airborne: {
+
+                    if (airMoved) {
+                        GroundMove();
+                    }
+                    break;
+                }
             case State.Dead:
                 break;
             case State.Goal:
@@ -174,21 +167,13 @@ public class TarzanAction : GimmickBase
 
     private void ReadInput()
     {
-        moveInput =
-            input.actions["Move"]
-            .ReadValue<Vector2>();
+        moveInput = input.actions["Move"].ReadValue<Vector2>();
 
-        grapplePressed =
-            input.actions["Atack"]
-            .WasPressedThisFrame();
+        grapplePressed = input.actions["Atack"].WasPressedThisFrame();
 
-        grappleReleased =
-            input.actions["Atack"]
-            .WasReleasedThisFrame();
+        grappleReleased = input.actions["Atack"].WasReleasedThisFrame();
 
-        jumpPressed =
-            input.actions["Jump"]
-            .WasPressedThisFrame();
+        jumpPressed = input.actions["Jump"].WasPressedThisFrame();
     }
 
     //==================================================
@@ -241,39 +226,32 @@ public class TarzanAction : GimmickBase
 
     private void UpdateShooting()
     {
-        currentRopeLength +=
-            ropeShotSpeed *
-            Time.deltaTime;
+        currentRopeLength += ropeShotSpeed * Time.deltaTime;
 
-        if (Vector2.Distance(
-            rb.position,
-            grapplePoint)
-            <= currentRopeLength)
-        {
+        if (Vector2.Distance(rb.position,grapplePoint)<= currentRopeLength) {
             BeginGrapple();
         }
 
-        if (grappleReleased)
+        if (grappleReleased) {
             StopGrapple();
+        }
     }
 
     private void UpdateGrappling()
     {
-        if (IsGrounded())
-        {
+        if (IsGrounded()) {
             StopGrapple();
             return;
         }
 
-        if (grappleReleased)
+        if (grappleReleased) {
             StopGrapple();
+        }
     }
 
     private void CheckGroundState()
     {
-        if (state == State.Grounded &&
-            !IsGrounded())
-        {
+        if (state == State.Grounded &&!IsGrounded()) {
             state = State.Airborne;
         }
     }
@@ -284,31 +262,19 @@ public class TarzanAction : GimmickBase
 
     private void GroundMove()
     {
-        float target =
-            moveInput.x *
-            moveSpeed;
-
+        float target = moveInput.x * moveSpeed;
         var speed = state != State.Airborne ? 10 : 5;
 
-        rb.linearVelocity =
-            new Vector2(
-                Mathf.Lerp(
-                    rb.linearVelocity.x,
-                    target,
-                    speed * Time.fixedDeltaTime),
-                rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(Mathf.Lerp(rb.linearVelocity.x, target, speed * Time.fixedDeltaTime), rb.linearVelocity.y);
     }
 
     private void Jump()
     {
-        if (!IsGrounded())
+        if (!IsGrounded()) {
             return;
+        }
 
-        rb.linearVelocity =
-            new Vector2(
-                rb.linearVelocity.x,
-                jumpPower);
-
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpPower);
         state = State.Airborne;
 
         AudioManager.Instance().PlaySE(jumpSE);
@@ -320,18 +286,22 @@ public class TarzanAction : GimmickBase
 
     private void StartRopeShot()
     {
-        if (!TryFindTarget(out RaycastHit2D hit))
+        if (!TryFindTarget(out RaycastHit2D hit)) {
+            Debug.Log("CoolTime");
             return;
+        }
 
-        if (grappleCooldownTimer > 0f)
+        if (grappleCooldownTimer > 0f) {
             return;
+        }
 
         grapplePoint = hit.point;
 
-        shotDir =
-            (grapplePoint -
-             (Vector2)transform.position)
-            .normalized;
+        shotDir = (grapplePoint - (Vector2)transform.position).normalized;
+        float angle = Vector2.SignedAngle(Vector2.right, shotDir);
+        if (angle < -downwardLimit) {
+            return;
+        }
 
         currentRopeLength = 0f;
 
@@ -359,10 +329,7 @@ public class TarzanAction : GimmickBase
     {
         pendulum.ResetPendulum();
 
-        state =
-            IsGrounded()
-            ? State.Grounded
-            : State.Airborne;
+        state = IsGrounded() ? State.Grounded : State.Airborne;
     }
 
     //==================================================
@@ -375,28 +342,18 @@ public class TarzanAction : GimmickBase
 
         switch (state)
         {
-            case State.Shooting:
-
-                ropeRenderer.DrawShot(
-                    start,
-                    shotDir,
-                    currentRopeLength);
-
-                break;
-
-            case State.Grappling:
-
-                ropeRenderer.DrawConnected(
-                    start,
-                    grapplePoint);
-
-                break;
-
-            default:
-
-                ropeRenderer.Hide();
-
-                break;
+            case State.Shooting: {
+                    ropeRenderer.DrawShot(start, shotDir, currentRopeLength);
+                    break;
+                }
+            case State.Grappling: {
+                    ropeRenderer.DrawConnected(start, grapplePoint);
+                    break;
+                }
+            default: {
+                    ropeRenderer.Hide();
+                    break;
+                }
         }
     }
 
@@ -406,25 +363,13 @@ public class TarzanAction : GimmickBase
 
     private bool TryFindTarget(out RaycastHit2D hit)
     {
-        bool isGamepad =
-            input.currentControlScheme == "Gamepad";
+        bool isGamepad = input.currentControlScheme == "Gamepad";
 
-        if (!isGamepad)
-        {
-            Vector3 mouse =
-                mainCamera.ScreenToWorldPoint(
-                    input.actions["Look"]
-                    .ReadValue<Vector2>());
+        if (!isGamepad) {
+            Vector3 mouse = mainCamera.ScreenToWorldPoint(input.actions["Look"].ReadValue<Vector2>());
 
-            Vector2 dir =
-                ((Vector2)mouse - rb.position)
-                .normalized;
-
-            hit = Physics2D.Raycast(
-                rb.position,
-                dir,
-                maxDistance,
-                grappleLayer);
+            Vector2 dir = ((Vector2)mouse - rb.position).normalized;
+            hit = Physics2D.Raycast(rb.position, dir, maxDistance, grappleLayer);
 
             return hit.collider != null;
         }
@@ -433,29 +378,17 @@ public class TarzanAction : GimmickBase
         // Gamepad Aim Assist
         // -------------------------
 
-        Vector2 stickDir =
-            input.actions["Look"]
-            .ReadValue<Vector2>();
+        Vector2 stickDir = input.actions["Look"].ReadValue<Vector2>();
 
-        if (stickDir.sqrMagnitude <
-            minStickInput * minStickInput)
-        {
+        if (stickDir.sqrMagnitude <minStickInput * minStickInput) {
             hit = default;
             return false;
         }
 
         stickDir.Normalize();
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(rb.position, aimAssistRadius, stickDir, maxDistance, grappleLayer);
 
-        RaycastHit2D[] hits =
-            Physics2D.CircleCastAll(
-                rb.position,
-                aimAssistRadius,
-                stickDir,
-                maxDistance,
-                grappleLayer);
-
-        if (hits.Length == 0)
-        {
+        if (hits.Length == 0) {
             hit = default;
             return false;
         }
@@ -465,26 +398,13 @@ public class TarzanAction : GimmickBase
 
         for (int i = 0; i < hits.Length; i++)
         {
-            Vector2 toTarget =
-                ((Vector2)hits[i].point -
-                 rb.position).normalized;
+            Vector2 toTarget = ((Vector2)hits[i].point - rb.position).normalized;
 
-            float directionScore =
-                Vector2.Dot(
-                    stickDir,
-                    toTarget);
+            float directionScore = Vector2.Dot(stickDir, toTarget);
+            float distanceScore = 1f - (hits[i].distance / maxDistance);
+            float score = directionScore * 0.8f + distanceScore * 0.2f;
 
-            float distanceScore =
-                1f -
-                (hits[i].distance /
-                 maxDistance);
-
-            float score =
-                directionScore * 0.8f +
-                distanceScore * 0.2f;
-
-            if (score > bestScore)
-            {
+            if (score > bestScore) {
                 bestScore = score;
                 bestIndex = i;
             }
@@ -496,22 +416,9 @@ public class TarzanAction : GimmickBase
 
     private bool IsGrounded()
     {
-        var ans = Physics2D.Raycast(
-            rb.position,
-            Vector2.down,
-            0.4f,
-            groundLayer);
-
-        var lans = Physics2D.Raycast(
-            new Vector2(rb.position.x - 0.5f, rb.position.y),
-            Vector2.down,
-            0.4f,
-            groundLayer);
-        var rans = Physics2D.Raycast(
-            new Vector2(rb.position.x + 0.5f, rb.position.y),
-            Vector2.down,
-            0.4f,
-            groundLayer);
+        var ans = Physics2D.Raycast(rb.position, Vector2.down, 0.4f, groundLayer);
+        var lans = Physics2D.Raycast(new Vector2(rb.position.x - 0.5f, rb.position.y), Vector2.down, 0.4f, groundLayer);
+        var rans = Physics2D.Raycast(new Vector2(rb.position.x + 0.5f, rb.position.y), Vector2.down, 0.4f, groundLayer);
 
         return (ans || lans || rans);
     }
@@ -524,9 +431,7 @@ public class TarzanAction : GimmickBase
     {
         ReleaseRope();
 
-        rb.linearVelocity = new Vector2(
-            vec * knockBackX,
-            knockBackY);
+        rb.linearVelocity = new Vector2(vec * knockBackX, knockBackY);
 
         HitStop(0.3f);
         state = State.Airborne;

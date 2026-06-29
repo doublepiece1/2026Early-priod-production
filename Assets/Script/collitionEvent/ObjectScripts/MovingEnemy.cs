@@ -12,6 +12,11 @@ namespace Kounosuke
         public override void OnStart()
         {
             base.OnStart();
+            Move();
+        }
+
+        private void Move()
+        {
             moveSequence = DOTween.Sequence();
             var v2 = new Vector2(transform.position.x, transform.position.y);
             moveSequence.Append(rb.DOMove(v2 + TargetPoint, time).SetEase(Ease.Linear)).SetLoops(-1, LoopType.Yoyo);
@@ -19,9 +24,9 @@ namespace Kounosuke
 
         public override void OnReset()
         {
-            base.OnReset();
             moveSequence?.Kill();
-            OnStart();
+            base.OnReset();
+            Move();
         }
 
         protected override void OnCollitionEvent()

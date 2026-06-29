@@ -51,152 +51,83 @@ namespace Kounosuke
         {
             grapplePoint = hookPoint;
 
-            ropeLength =
-                Vector2.Distance(
-                    rb.position,
-                    grapplePoint);
+            ropeLength = Vector2.Distance(rb.position, grapplePoint);
 
-            Vector2 offset =
-                rb.position - grapplePoint;
-
-            angle =
-                Mathf.Atan2(
-                    offset.x,
-                    -offset.y);
-
-            Vector2 tangent =
-                new Vector2(
-                    Mathf.Cos(angle),
-                    Mathf.Sin(angle));
-
-            angleVelocity =
-                Vector2.Dot(
-                    rb.linearVelocity,
-                    tangent)
-                / ropeLength;
+            Vector2 offset = rb.position - grapplePoint;
 
             angle = Mathf.Atan2(offset.x, -offset.y);
+            Vector2 tangent = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+
+            angleVelocity = Vector2.Dot(rb.linearVelocity, tangent) / ropeLength;
         }
 
         public void Tick(Vector2 moveInput)
         {
             AdjustRopeLength(moveInput.y);
-
             Simulate();
-
             ApplyInput(moveInput.x);
-
             ApplyToRigidbody();
         }
 
         private void AdjustRopeLength(float input)
         {
-            if (Mathf.Abs(input) < 0.1f)
+            if (Mathf.Abs(input) < 0.1f) {
                 return;
+            }
+            var multvalue = 1.0f;
+            if (Mathf.Abs(angle) > 1) {
+                multvalue = 0.5f;
+            }
+            else if(Mathf.Abs(angle) > 2) {
+                return;
+            }
 
             float oldLength = ropeLength;
 
-            ropeLength -=
-                input *
-                ropeAdjustSpeed *
-                Time.fixedDeltaTime;
+            ropeLength -= input * ropeAdjustSpeed * Time.fixedDeltaTime * multvalue;
+            ropeLength = Mathf.Clamp(ropeLength,minRopeLength,maxRopeLength);
 
-            ropeLength = Mathf.Clamp(
-                ropeLength,
-                minRopeLength,
-                maxRopeLength);
-
-            if (ropeLength < oldLength)
-            {
-                Vector2 toHook =
-                    (grapplePoint - rb.position)
-                    .normalized;
-
-                rb.linearVelocity +=
-                    toHook * ropeRetractBoost;
+            if (ropeLength < oldLength) {
+                Vector2 toHook = (grapplePoint - rb.position).normalized;
+                rb.linearVelocity += toHook * ropeRetractBoost;
             }
         }
 
         private void Simulate()
         {
-            Vector2 offset =
-                rb.position - grapplePoint;
-
-            angle =
-                Mathf.Atan2(
-                    offset.x,
-                    -offset.y);
-
-            float accel =
-                -gravity *
-                Mathf.Sin(angle) /
-                ropeLength;
-
-            angleVelocity +=
-                accel *
-                Time.fixedDeltaTime;
+            Vector2 offset = rb.position - grapplePoint;
+            angle = Mathf.Atan2(offset.x, -offset.y);
+            float accel = -gravity * Mathf.Sin(angle) / ropeLength * Time.fixedDeltaTime;
+            angleVelocity += accel;
 
             seCooldown -= Time.fixedDeltaTime;
 
-            if (Mathf.Abs(angle) < 0.2f && Speed >= seMinSpeed && seCooldown<0)
-            {
+            if (Mathf.Abs(angle) < 0.2f && Speed >= seMinSpeed && seCooldown<0) {
                 OnHalfTurn?.Invoke();
             }
 
-            angleVelocity *=
-                1f -
-                airResistance *
-                Time.fixedDeltaTime;
+            angleVelocity *=1f -airResistance *Time.fixedDeltaTime;
+            angleVelocity = Mathf.Clamp(angleVelocity,-maxAngleVelocity,maxAngleVelocity);
 
-            angleVelocity = Mathf.Clamp(
-                angleVelocity,
-                -maxAngleVelocity,
-                maxAngleVelocity);
-
-            angle +=
-                angleVelocity *
-                Time.fixedDeltaTime;
+            angle += angleVelocity * Time.fixedDeltaTime;
         }
 
         private void ApplyInput(float input)
         {
-            inputVelocity +=
-                input *
-                swingAccel *
-                Time.fixedDeltaTime;
-
-            inputVelocity *= Mathf.Exp(
-                -inputVelocityDecay *
-                Time.fixedDeltaTime);
+            inputVelocity += input * swingAccel * Time.fixedDeltaTime;
+            inputVelocity *= Mathf.Exp(-inputVelocityDecay * Time.fixedDeltaTime);
         }
 
         private void ApplyToRigidbody()
         {
-            Vector2 offset =
-                new Vector2(
-                    Mathf.Sin(angle),
-                    -Mathf.Cos(angle))
-                * ropeLength;
+            Vector2 offset = new Vector2(Mathf.Sin(angle), -Mathf.Cos(angle)) * ropeLength;
 
-            Vector2 target =
-                grapplePoint + offset;
-
-            Vector2 tangent =
-                new Vector2(
-                    Mathf.Cos(angle),
-                    Mathf.Sin(angle));
+            Vector2 target = grapplePoint + offset;
+            Vector2 tangent = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
 
             retractVelocity *= Mathf.Exp(-6f * Time.fixedDeltaTime);
 
-            Vector2 tangentVel =
-                    tangent *
-                    (
-                        angleVelocity * ropeLength
-                        + inputVelocity
-                        + retractVelocity
-                    );
-
-            
+            Vector2 tangentVel = tangent * (angleVelocity * ropeLength + inputVelocity + retractVelocity);
 
             rb.position = target;
             rb.linearVelocity = tangentVel;
