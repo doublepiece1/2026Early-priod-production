@@ -19,7 +19,7 @@ namespace Kounosuke
         // ■ タイマー
         //==================================================
         [Header("ゲームタイマー")]
-        public float timer {  get;private set; }
+        public float timer { get; private set; }
         [SerializeField] private float sceneTime;
 
         private bool isTimerActive = true;
@@ -72,7 +72,7 @@ namespace Kounosuke
             foreach (var gimmick in gimmicks)
                 gimmick.OnStart();
 
-            AudioManager.Instance().PlayBGM(BGM);
+            //AudioManager.Instance().PlayBGM(BGM);
         }
 
         //==================================================
@@ -89,7 +89,6 @@ namespace Kounosuke
             {
                 timer = 0f;
                 isTimerActive = false;
-                
                 return;
             }
         }

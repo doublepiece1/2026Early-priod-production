@@ -4,6 +4,7 @@ using Unity.AppUI.Core;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+//aiu
 public class TarzanAction : GimmickBase
 {
     //==================================================
@@ -17,7 +18,7 @@ public class TarzanAction : GimmickBase
     [SerializeField] private float coolTime = 0.5f;
     [SerializeField, Range(0f, 90f)] private float downwardLimit = 30f;
     [SerializeField] private float grappleCooldownTimer;
-    
+
 
     [Header("Gamepad Aim Assist")]
     [SerializeField] private float aimAssistRadius = 0.5f;
@@ -119,16 +120,16 @@ public class TarzanAction : GimmickBase
     {
         base.OnGoalEvent();
         state = State.Goal;
-    }   
+    }
 
     private void Update()
     {
         if (state == State.Dead) return;
 
-        if (grappleCooldownTimer > 0f) {
+        if (grappleCooldownTimer > 0f)
+        {
             grappleCooldownTimer -= Time.deltaTime;
         }
-            
         ReadInput();
         UpdateState();
         UpdateRopeVisual();
@@ -138,18 +139,22 @@ public class TarzanAction : GimmickBase
     {
         switch (state)
         {
-            case State.Grappling: {
+            case State.Grappling:
+                {
                     pendulum.Tick(moveInput);
                     boost.Charge(pendulum.Speed);
                     break;
                 }
-            case State.Grounded: {
+            case State.Grounded:
+                {
                     GroundMove();
                     break;
                 }
-            case State.Airborne: {
+            case State.Airborne:
+                {
 
-                    if (airMoved) {
+                    if (airMoved)
+                    {
                         GroundMove();
                     }
                     break;
@@ -218,7 +223,8 @@ public class TarzanAction : GimmickBase
         if (grapplePressed)
             StartRopeShot();
 
-        if (IsGrounded()) { 
+        if (IsGrounded())
+        {
             state = State.Grounded;
             airMoved = true;
         }
@@ -228,30 +234,35 @@ public class TarzanAction : GimmickBase
     {
         currentRopeLength += ropeShotSpeed * Time.deltaTime;
 
-        if (Vector2.Distance(rb.position,grapplePoint)<= currentRopeLength) {
+        if (Vector2.Distance(rb.position, grapplePoint) <= currentRopeLength)
+        {
             BeginGrapple();
         }
 
-        if (grappleReleased) {
+        if (grappleReleased)
+        {
             StopGrapple();
         }
     }
 
     private void UpdateGrappling()
     {
-        if (IsGrounded()) {
+        if (IsGrounded())
+        {
             StopGrapple();
             return;
         }
 
-        if (grappleReleased) {
+        if (grappleReleased)
+        {
             StopGrapple();
         }
     }
 
     private void CheckGroundState()
     {
-        if (state == State.Grounded &&!IsGrounded()) {
+        if (state == State.Grounded && !IsGrounded())
+        {
             state = State.Airborne;
         }
     }
@@ -270,7 +281,8 @@ public class TarzanAction : GimmickBase
 
     private void Jump()
     {
-        if (!IsGrounded()) {
+        if (!IsGrounded())
+        {
             return;
         }
 
@@ -286,12 +298,14 @@ public class TarzanAction : GimmickBase
 
     private void StartRopeShot()
     {
-        if (!TryFindTarget(out RaycastHit2D hit)) {
+        if (!TryFindTarget(out RaycastHit2D hit))
+        {
             Debug.Log("CoolTime");
             return;
         }
 
-        if (grappleCooldownTimer > 0f) {
+        if (grappleCooldownTimer > 0f)
+        {
             return;
         }
 
@@ -299,7 +313,8 @@ public class TarzanAction : GimmickBase
 
         shotDir = (grapplePoint - (Vector2)transform.position).normalized;
         float angle = Vector2.SignedAngle(Vector2.right, shotDir);
-        if (angle < -downwardLimit) {
+        if (angle < -downwardLimit)
+        {
             return;
         }
 
@@ -342,15 +357,18 @@ public class TarzanAction : GimmickBase
 
         switch (state)
         {
-            case State.Shooting: {
+            case State.Shooting:
+                {
                     ropeRenderer.DrawShot(start, shotDir, currentRopeLength);
                     break;
                 }
-            case State.Grappling: {
+            case State.Grappling:
+                {
                     ropeRenderer.DrawConnected(start, grapplePoint);
                     break;
                 }
-            default: {
+            default:
+                {
                     ropeRenderer.Hide();
                     break;
                 }
@@ -365,7 +383,8 @@ public class TarzanAction : GimmickBase
     {
         bool isGamepad = input.currentControlScheme == "Gamepad";
 
-        if (!isGamepad) {
+        if (!isGamepad)
+        {
             Vector3 mouse = mainCamera.ScreenToWorldPoint(input.actions["Look"].ReadValue<Vector2>());
 
             Vector2 dir = ((Vector2)mouse - rb.position).normalized;
@@ -380,7 +399,8 @@ public class TarzanAction : GimmickBase
 
         Vector2 stickDir = input.actions["Look"].ReadValue<Vector2>();
 
-        if (stickDir.sqrMagnitude <minStickInput * minStickInput) {
+        if (stickDir.sqrMagnitude < minStickInput * minStickInput)
+        {
             hit = default;
             return false;
         }
@@ -388,7 +408,8 @@ public class TarzanAction : GimmickBase
         stickDir.Normalize();
         RaycastHit2D[] hits = Physics2D.CircleCastAll(rb.position, aimAssistRadius, stickDir, maxDistance, grappleLayer);
 
-        if (hits.Length == 0) {
+        if (hits.Length == 0)
+        {
             hit = default;
             return false;
         }
@@ -404,7 +425,8 @@ public class TarzanAction : GimmickBase
             float distanceScore = 1f - (hits[i].distance / maxDistance);
             float score = directionScore * 0.8f + distanceScore * 0.2f;
 
-            if (score > bestScore) {
+            if (score > bestScore)
+            {
                 bestScore = score;
                 bestIndex = i;
             }
@@ -462,7 +484,8 @@ public class TarzanAction : GimmickBase
         rb.linearVelocity = Vector2.zero;
     }
 
-    public void ResetPlayer() {
+    public void ResetPlayer()
+    {
         state = State.Grounded;
     }
 }

@@ -4,7 +4,8 @@ using UnityEngine.EventSystems;
 namespace Kounosuke
 {
     //óMŠÖ”
-    public interface GimmickInterface : IEventSystemHandler {
+    public interface GimmickInterface : IEventSystemHandler
+    {
         void OnStart();
         void OnReset();
 
