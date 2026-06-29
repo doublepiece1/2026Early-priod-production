@@ -19,9 +19,8 @@ namespace Kounosuke
         // ■ タイマー
         //==================================================
         [Header("ゲームタイマー")]
-        [SerializeField] private float timer;
+        public float timer {  get;private set; }
         [SerializeField] private float sceneTime;
-        [SerializeField] private TextMeshProUGUI timerText;
 
         private bool isTimerActive = true;
 
@@ -30,7 +29,7 @@ namespace Kounosuke
         //==================================================
         [Header("ゲーム演出")]
         [SerializeField] private Fade fadeObj;
-
+        [SerializeField] private AudioClip BGM;
         private bool isProcessing = false;
 
         //==================================================
@@ -72,6 +71,8 @@ namespace Kounosuke
 
             foreach (var gimmick in gimmicks)
                 gimmick.OnStart();
+
+            AudioManager.Instance().PlayBGM(BGM);
         }
 
         //==================================================
@@ -88,11 +89,9 @@ namespace Kounosuke
             {
                 timer = 0f;
                 isTimerActive = false;
-                Debug.Log("タイマー終了");
+                
                 return;
             }
-
-            timerText.text = $"Time : {timer:0.0}";
         }
 
         //==================================================
@@ -100,6 +99,7 @@ namespace Kounosuke
         //==================================================
         private async UniTask StartGameFlow()
         {
+            Debug.Log("Start");
             await UniTask.Delay(1000);
             await FadeAsync(false);
         }

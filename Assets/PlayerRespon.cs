@@ -6,26 +6,32 @@ namespace Kounosuke
     public class PlayerRespon : GimmickBase
     {
         [Header("プレイヤーHp設定")]
-        [SerializeField, Tooltip("Hp")] private int Hp = 0;
-        [SerializeField, Tooltip("MaxHp")] private int MaxHp = 0;
+        [Tooltip("Hp")] public int Hp { get; private set; } = 0;
+        [SerializeField, Tooltip("MaxHp")] private int MaxHp = 3;
         [SerializeField] private float invincibleTime = 1.0f;
-        private bool isInvincible = false;
-
+        public bool isInvincible = false;
 
         private Vector3 startPosition;
         private TarzanAction tarzan;
+        private BoostController boostController;
+
         private void Awake() {
             tarzan = GetComponent<TarzanAction>();
+            boostController = GetComponent<BoostController>();
         }
 
         /// <summary>
         /// 初期位置セット関数
         /// </summary>
-        public void SetPos() {
-            startPosition = transform.position;
+        public void SetPos(Transform pos) {
+            startPosition = pos.position;
         }
-        void Start() {
-            SetPos();
+
+        public override void OnStart()
+        {
+            base.OnStart();
+            SetPos(transform);
+            SetHp(MaxHp);
         }
 
         /// <summary>
@@ -49,24 +55,33 @@ namespace Kounosuke
             if (collision.gameObject.CompareTag("DeadZone"))
             {
                 Rigidbody2D rb = GetComponent<Rigidbody2D>();
-                if (rb != null) {
+                if (rb != null)
+                {
                     rb.linearVelocity = Vector2.zero;
                     rb.angularVelocity = 0f;
                 }
-
                 tarzan?.Die();
             }
+        }
 
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            
             if (collision.gameObject.CompareTag("Enemy"))
             {
+                if (isInvincible)
+                {
+                    boostController.AddBoost();
+                    return;
+                }
+                var vec = transform.position - collision.gameObject.transform.position;
+                NockBack(vec.x);
                 TakeDamage(1);
             }
         }
 
         private void TakeDamage(int damage)
         {
-            if (isInvincible) return;
-
             Hp -= damage;
 
             if (Hp <= 0)
@@ -77,6 +92,10 @@ namespace Kounosuke
             }
 
             InvincibleRoutine().Forget();
+        }
+        private void NockBack(float vecx)
+        {
+            tarzan?.NockBack(vecx);
         }
 
         private async UniTaskVoid InvincibleRoutine()
