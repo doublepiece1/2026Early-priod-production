@@ -10,6 +10,7 @@ namespace Kounosuke
         [SerializeField, Tooltip("MaxHp")] private int MaxHp = 3;
         [SerializeField] private float invincibleTime = 1.0f;
         public bool isInvincible = false;
+        private bool colitionenemy = false;
 
         private Vector3 startPosition;
         private TarzanAction tarzan;
@@ -69,6 +70,7 @@ namespace Kounosuke
             
             if (collision.gameObject.CompareTag("Enemy"))
             {
+                if (colitionenemy) return;
                 if (isInvincible)
                 {
                     boostController.AddBoost();
@@ -101,6 +103,7 @@ namespace Kounosuke
         private async UniTaskVoid InvincibleRoutine()
         {
             isInvincible = true;
+            colitionenemy = true;
             SpriteRenderer sr = GetComponent<SpriteRenderer>();
             var second = (int)(invincibleTime / 10 * 1000);
             Debug.Log(second);
@@ -112,7 +115,7 @@ namespace Kounosuke
                 sr.enabled = true;
                 await UniTask.Delay(second);
             }
-
+            colitionenemy = false;
             isInvincible = false;
         }
     }
