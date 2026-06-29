@@ -104,6 +104,7 @@ public class TitleEventManager : MonoBehaviour
 
     public async UniTask Load(string str)
     {
+        mainCanvas_.SetActive(false);
         fade_.FadeImage(true);
         await UniTask.Delay(1000);
         SceneFlowManager.Instance().MoveGameScene();
