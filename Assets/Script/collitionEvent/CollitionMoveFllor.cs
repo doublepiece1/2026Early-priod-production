@@ -1,10 +1,8 @@
-using DG.Tweening;
 using UnityEngine;
-using Sequence = DG.Tweening.Sequence;
 
 namespace Kounosuke
 {
-    public class CollitionMoveFllor : MonoBehaviour
+    public class CollitionMoveFllor : GimmickBase
     {
         [SerializeField] private Vector3[] Move_Points;
         [SerializeField] private float stopTime = 1f;
@@ -25,6 +23,8 @@ namespace Kounosuke
         private bool waiting = false;
         private bool started = false;
 
+        Vector3 start_pos;
+
         private void Start()
         {
             rb = GetComponent<Rigidbody2D>();
@@ -39,6 +39,21 @@ namespace Kounosuke
                 return;
 
             StartMove();
+        }
+
+        public override void OnStart()
+        {
+            base.OnStart();
+            start_pos = transform.position;
+        }
+
+        public override void OnReset()
+        {
+            transform.position = start_pos;
+            started = false;
+            waiting = false;
+            started = false;
+            index = 0;
         }
 
         private void StartMove()
