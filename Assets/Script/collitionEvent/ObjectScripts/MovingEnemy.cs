@@ -16,13 +16,16 @@ namespace Kounosuke
 
         private void Move()
         {
+            Debug.Log("EnemyMove");
             moveSequence = DOTween.Sequence();
-            var v2 = new Vector2(transform.position.x, transform.position.y);
-            moveSequence.Append(rb.DOMove(v2 + TargetPoint, time).SetEase(Ease.Linear)).SetLoops(-1, LoopType.Yoyo);
+            Vector2 v2 = rb.position;
+
+            moveSequence.Append(rb.DOMove(v2 + TargetPoint, time)).SetLoops(-1, LoopType.Yoyo).SetEase(Ease.Linear);
         }
 
         public override void OnReset()
         {
+            
             moveSequence?.Kill();
             base.OnReset();
             Move();

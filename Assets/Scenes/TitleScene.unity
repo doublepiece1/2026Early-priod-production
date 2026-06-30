@@ -550,7 +550,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.011
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -647,7 +647,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.004
+  m_Volume: 0.1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -1146,11 +1146,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2996903196205669607, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3
+      value: -4.19
       objectReference: {fileID: 0}
     - target: {fileID: 2996903196205669607, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6.32
+      value: -6.3
       objectReference: {fileID: 0}
     - target: {fileID: 2996903196205669607, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1183,6 +1183,10 @@ PrefabInstance:
     - target: {fileID: 2996903196205669607, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
+      propertyPath: vec_.y
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: animator_
@@ -1396,11 +1400,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2996903196205669607, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -9
+      value: -10.190001
       objectReference: {fileID: 0}
     - target: {fileID: 2996903196205669607, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -6.53
+      value: -6.51
       objectReference: {fileID: 0}
     - target: {fileID: 2996903196205669607, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1436,16 +1440,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: time_
-      value: 1.5
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: vec_.y
-      value: 5
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: animator_
       value: 
       objectReference: {fileID: 992321750}
+    - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
+      propertyPath: stopTime_
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 9036044811762630622, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_FlipX
       value: 0
@@ -1741,16 +1749,20 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: time_
-      value: 1.5
+      value: 1.25
       objectReference: {fileID: 0}
     - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: vec_.y
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: animator_
       value: 
       objectReference: {fileID: 1849653161}
+    - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
+      propertyPath: stopTime_
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 9036044811762630622, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_FlipX
       value: 1
@@ -2650,6 +2662,14 @@ PrefabInstance:
     - target: {fileID: 2996903196205669607, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
+      propertyPath: time_
+      value: 1.125
+      objectReference: {fileID: 0}
+    - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
+      propertyPath: vec_.y
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 4232714412635846971, guid: 481c56b170429f247a76c3a92eaebcbe, type: 3}
       propertyPath: animator_

@@ -43,11 +43,11 @@ namespace Kounosuke
         /// <summary>
         /// コインリセット関数
         /// </summary>
-        public void OnReset() {
-            if (!coinBody.activeSelf) {
-                coinBody.SetActive(true);
-                coinBodyCollider.enabled = true;
-            }
+        public override void OnReset() {
+            //if (!coinBody.activeSelf) {
+            //    coinBody.SetActive(true);
+            //    coinBodyCollider.enabled = true;
+            //}
         }
     }
 }

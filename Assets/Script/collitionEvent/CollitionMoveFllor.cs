@@ -6,88 +6,104 @@ namespace Kounosuke
 {
     public class CollitionMoveFllor : MonoBehaviour
     {
-        [SerializeField,Header("移動地点の目印のVector3 + 移動にかかる時間")] private Vector3[] Move_Points;
-        [SerializeField, Header("最終的に停止して、消滅するまでの時間")] private float stopTime = 1;
-
+        [SerializeField] private Vector3[] Move_Points;
+        [SerializeField] private float stopTime = 1f;
+        public Vector2 Delta { get; private set; }
+        public Vector2 Velocity { get; private set; }
+        private Vector2 prevPos;
         private Rigidbody2D rb;
-        private Vector3 start_pos;
 
-        private Sequence moveSequence;
-        bool is_sequence_playing = false;
-        /// <summary>
-        /// ギミックスタート関数
-        /// </summary>
-        public void Start() {
+        private int index = 0;
+        private float waitTimer = 0f;
+
+        private Vector2 from;
+        private Vector2 to;
+        private float moveTime = 1f;
+        private float t = 0f;
+
+        private bool moving = false;
+        private bool waiting = false;
+        private bool started = false;
+
+        private void Start()
+        {
             rb = GetComponent<Rigidbody2D>();
-            start_pos = transform.position;
-            ResetMoveFloor();
         }
 
+        // =========================
+        // プレイヤー接触で起動
+        // =========================
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (!collision.gameObject.CompareTag("Player"))
-            {
                 return;
-            }
-            if (is_sequence_playing)
-            {
-                return;
-            }
-            foreach (var contact in collision.contacts)
-            {
-                Debug.Log(contact.normal);
 
-                if (Vector2.Dot(contact.normal, Vector2.down) > 0.8f)
+            StartMove();
+        }
+
+        private void StartMove()
+        {
+            if (started) return;
+
+            started = true;
+            SetupNext();
+        }
+
+        private void FixedUpdate()
+        {
+            if (!started) return;
+            if (Move_Points == null || Move_Points.Length == 0) return;
+
+            if (waiting)
+            {
+                waitTimer -= Time.fixedDeltaTime;
+
+                if (waitTimer <= 0f)
                 {
-                    Debug.Log("Player Collision Up");
-                    MoveAction();
+                    waiting = false;
+                    SetupNext();
                 }
-
-            }
-        }
-        /// <summary>
-        /// 移動本体関数
-        /// </summary>
-        private void MoveAction()
-        {
-            if (Move_Points == null || Move_Points.Length == 0) {
                 return;
             }
-            is_sequence_playing = true;
-            moveSequence = DOTween.Sequence();
 
-            //ポイント追加
-            foreach (Vector3 point in Move_Points) {
-                var time = point.z;
-                var pos = new Vector2(point.x, point.y);
-                moveSequence.Append(rb.DOMove(pos, time).SetEase(Ease.Linear));
+            if (!moving)
+                return;
+
+            t += Time.fixedDeltaTime / moveTime;
+
+            Vector2 newPos = Vector2.Lerp(from, to, t);
+
+            // 今フレーム床が移動する量
+            Delta = newPos - rb.position;
+
+            rb.MovePosition(newPos);
+
+            if (t >= 1f)
+            {
+                SetupNext();
+            }
+        }
+
+        private void SetupNext()
+        {
+            if (index >= Move_Points.Length)
+            {
+                waiting = true;
+                waitTimer = stopTime;
+                moving = false;
+                return;
             }
 
-            //  ここに数秒間停止する処理を追加
-            moveSequence.AppendInterval(stopTime);
+            from = rb.position;
 
-            //終了時取得
-            moveSequence.OnComplete(() => {
-                this.gameObject.SetActive(false);
-            });
-        }
+            Vector3 p = Move_Points[index];
+            to = new Vector2(p.x, p.y);
+            moveTime = p.z;
 
-        /// <summary>
-        /// ギミックリセット関数
-        /// </summary>
-        public void OnReset() {
-            ResetMoveFloor();
-        }
+            t = 0f;
+            moving = true;
 
-        /// <summary>
-        /// リセット本体
-        /// </summary>
-        public void ResetMoveFloor()
-        {
-            transform.position = start_pos;
-            this.gameObject.SetActive(true);
-            moveSequence?.Kill();
-            is_sequence_playing = false;
+            index++;
         }
     }
 }

@@ -9,7 +9,6 @@ namespace Kounosuke
         [SerializeField, Header("フェードするマテリアル")] private Material material;
         protected override void CollitionEvent()
         {
-            Debug.Log("Fade action");
             gameManager.PlayerDeath().Forget();
         }
     }

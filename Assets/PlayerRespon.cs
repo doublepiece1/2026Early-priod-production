@@ -45,6 +45,11 @@ namespace Kounosuke
             }
             SetHp(MaxHp);
         }
+        public override void OnGoalEvent()
+        {
+            base.OnGoalEvent();
+
+        }
 
         public void SetHp(int hp)
         {

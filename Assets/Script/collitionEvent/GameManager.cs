@@ -1,5 +1,7 @@
 using Cysharp.Threading.Tasks;
+using System;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -19,10 +21,9 @@ namespace Kounosuke
         // ■ タイマー
         //==================================================
         [Header("ゲームタイマー")]
-        public float timer { get; private set; }
+        public float timer;
         [SerializeField] private float sceneTime;
-
-        private bool isTimerActive = true;
+        public bool isTimerActive = true;
 
         //==================================================
         // ■ 演出
@@ -30,6 +31,7 @@ namespace Kounosuke
         [Header("ゲーム演出")]
         [SerializeField] private Fade fadeObj;
         [SerializeField] private AudioClip BGM;
+        [SerializeField] private AudioClip ClearSE;
         private bool isProcessing = false;
 
         //==================================================
@@ -72,7 +74,7 @@ namespace Kounosuke
             foreach (var gimmick in gimmicks)
                 gimmick.OnStart();
 
-            //AudioManager.Instance().PlayBGM(BGM);
+            AudioManager.Instance()?.PlayBGM(BGM);
         }
 
         //==================================================
@@ -84,11 +86,9 @@ namespace Kounosuke
                 return;
 
             timer -= Time.deltaTime;
-
-            if (timer <= 0f)
-            {
+            if (timer <= 0f) {
                 timer = 0f;
-                isTimerActive = false;
+                SceneFlowManager.Instance()?.ReLoadThisScene();
                 return;
             }
         }
@@ -136,19 +136,16 @@ namespace Kounosuke
 
             foreach (var gimmick in gimmicks)
                 gimmick.OnGoalEvent();
+
+            AudioManager.Instance()?.StopBGM();
+            AudioManager.Instance()?.PlaySE(ClearSE);
             Debug.Log("Goal！！！！！！！");
 
             await UniTask.Delay(2000);
 
             await FadeAsync(true);
 
-            SceneFlowManager.Instance().MoveTitleScene();
-
-            //ResetGame();
-
-            //await FadeAsync(false);
-
-            //isProcessing = false;
+            SceneFlowManager.Instance()?.MoveTitleScene();
         }
 
         //==================================================
@@ -166,7 +163,6 @@ namespace Kounosuke
                 gimmick.OnReset();
 
             timer = sceneTime;
-            isTimerActive = true;
         }
 
         //==================================================

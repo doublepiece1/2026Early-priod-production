@@ -24,6 +24,7 @@ namespace Kounosuke
         {
             manager = gameObject.GetComponent<GameManager>();
             respon = FindFirstObjectByType<PlayerRespon>();
+            TimeText.text = "";
         }
         public override void OnReset()
         {
@@ -31,12 +32,15 @@ namespace Kounosuke
             {
                 item.sprite = RadHert;
             }
+            TimeText.text = "";
         }
 
         private void FixedUpdate()
         {
-            TimeText.text = $"Time : {manager.timer:0.0}";
             ChengeHert(respon.Hp);
+            if (manager.isTimerActive) {
+                ChengeTimer(manager.timer);
+            }
         }
 
         void ChengeHert(int value)
@@ -51,6 +55,11 @@ namespace Kounosuke
             
             hert_value = value;
             Herts[hert_value].sprite = BlackHert;
+        }
+
+        void ChengeTimer(float timer)
+        {
+            TimeText.text = $"Time : {timer:0.0}";
         }
     }
 }

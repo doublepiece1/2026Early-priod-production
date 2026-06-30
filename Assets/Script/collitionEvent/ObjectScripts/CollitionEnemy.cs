@@ -29,9 +29,10 @@ namespace Kounosuke
 
         public override void OnReset()
         {
+            Debug.Log("EnemyReset");
             base.OnReset();
             isDead = false;
-            transform.position = startPos;
+            rb.position = startPos;
             rb.linearVelocity = Vector2.zero;
             rb.angularVelocity = 0f;
             transform.rotation = Quaternion.identity;

@@ -56,5 +56,12 @@ namespace Kounosuke
         public void MoveSelectScene() {
             SceneManager.LoadScene("SelectStageScene");
         }
+
+        /// <summary>
+        /// シーン再読み込み
+        /// </summary>
+        public void ReLoadThisScene() {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
     }
 }

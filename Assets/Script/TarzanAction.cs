@@ -34,6 +34,10 @@ public class TarzanAction : GimmickBase
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private float knockBackX = 8f;
     [SerializeField] private float knockBackY = 5f;
+    private Vector2 platformDelta;
+    private Vector2 platformVelocity;
+        
+    private CollitionMoveFllor moveFllor;
 
     //==================================================
     // ■ コンポーネント
@@ -109,7 +113,7 @@ public class TarzanAction : GimmickBase
 
     private void PlayGrappleSE()
     {
-        AudioManager.Instance()?.PlaySE(grappleSE);
+        //AudioManager.Instance()?.PlaySE(grappleSE);
     }
     public override void OnReset()
     {
@@ -146,19 +150,14 @@ public class TarzanAction : GimmickBase
                     break;
                 }
             case State.Grounded:
-                {
-                    GroundMove();
-                    break;
-                }
-            case State.Airborne:
-                {
+                GroundMove();
+                break;
 
-                    if (airMoved)
-                    {
-                        GroundMove();
-                    }
-                    break;
+            case State.Airborne:
+                if (airMoved) {
+                    GroundMove();
                 }
+                break;
             case State.Dead:
                 break;
             case State.Goal:
@@ -274,11 +273,40 @@ public class TarzanAction : GimmickBase
     private void GroundMove()
     {
         float target = moveInput.x * moveSpeed;
-        var speed = state != State.Airborne ? 10 : 5;
+        float speed = state != State.Airborne ? 10 : 5;
 
-        rb.linearVelocity = new Vector2(Mathf.Lerp(rb.linearVelocity.x, target, speed * Time.fixedDeltaTime), rb.linearVelocity.y);
+        float x = Mathf.Lerp(rb.linearVelocity.x, target, speed * Time.fixedDeltaTime);
+
+        if (moveFllor != null)
+        {
+            x += moveFllor.Velocity.x;
+        }
+
+        rb.linearVelocity = new Vector2(x, rb.linearVelocity.y);
     }
 
+    private void OnCollisionStay2D(Collision2D col)
+    {
+        var floor = col.collider.GetComponent<CollitionMoveFllor>();
+        if (floor == null) return;
+
+        foreach (var contact in col.contacts)
+        {
+            // 接触面の法線が上向き = プレイヤーが床の上にいる
+            if (contact.normal.y > 0.7f)
+            {
+                moveFllor = floor;
+                return;
+            }
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D col)
+    {
+        if (col.collider.GetComponent<CollitionMoveFllor>() == moveFllor)
+            moveFllor = null;
+    }
+    
     private void Jump()
     {
         if (!IsGrounded())
@@ -300,7 +328,6 @@ public class TarzanAction : GimmickBase
     {
         if (!TryFindTarget(out RaycastHit2D hit))
         {
-            Debug.Log("CoolTime");
             return;
         }
 
